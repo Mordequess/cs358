@@ -15,6 +15,7 @@ Come, Thou Tortoise
 */
 
 #include "lookupcontent.h"
+#include "../peer.h"
 
 int main(int argc, char *argv[]) {
    switch (argc) {//parse input
