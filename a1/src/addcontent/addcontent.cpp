@@ -1,11 +1,11 @@
 /*
 
 addcontent
-This takes as argument the ip-address and port of some peer in your system, and apiece of content.
+This takes as argument the ip-address and port of some peer in your system, and a piece of content.
 It adds a new piece of content into the system.
-You choose a peer to host the content– this is not necessarily the peer that we provide as command-line argument.
-The content,  whichis provided as command-line argument, is just a string.
-This command outputs, to stdout, a uniquepositive integer key by which this content may be retrieved from your peer-to-peer system.
+You choose a peer to host the content – this is not necessarily the peer that we provide as command-line argument.
+The content,  which is provided as command-line argument, is just a string.
+This command outputs, to stdout, a unique positive integer key by which this content may be retrieved from your peer-to-peer system.
 
 Exampleusage and output:
 

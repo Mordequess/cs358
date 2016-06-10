@@ -18,6 +18,21 @@ $ addpeer 1.2.3.4 50400
 $ addpeer 1.2.3.4 50400
 3.4.5.6 34232
 
+
+Load-balancing requirement
+At any moment, you should ensure that each peer maintains an equally fairshare of the content items.
+That is, if at a particular moment we have P peers and C pieces of content, then each peer must host between floor(c/p) and ceiling(c/p) pieces of content.
+For us to query and check this, you havethe following additional requirement:
+
+We will write a tcp client that will connect() to the ip-address and port of a peer.
+Once the peer accepts the connection request, we will send() the string “allkeys”.
+We will then recv().
+The peer must send back the keys of all the pieces of content it hosts as a string, separated by ',', and terminated by '0'.
+
+E.g., the string the peer responds with may be “23,4,12,0.”
+Your peer may shutdown() the connection as soon as it sends this.
+(We will shutdown() from our end anyway.)
+
 */
 
 #include "addpeer.h"

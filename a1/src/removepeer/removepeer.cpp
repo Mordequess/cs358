@@ -2,10 +2,10 @@
 
 removepeer
 This takes as argument the ip-address and port associated with a peer.
-It causes thepeer to be removed from the system.
-All the content managed by the peer must be redistributed to theother peers before this peer disappears.
-See also the “load-balancing requirement” below.
-If this isthe only peer in the system, then all the content vanishes with it.
+It causes the peer to be removed from the system.
+All the content managed by the peer must be redistributed to the other peers before this peer disappears.
+See also the "load-balancing requirement" below.
+If this is the only peer in the system, then all the content vanishes with it.
 
 Example usage and output:
 

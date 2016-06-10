@@ -2,8 +2,8 @@
 
 removecontent
 This removes some content that is hosted by a peer in your system.
-The ip-address and port of some peer, and the key associated with the content are provided as command-linearguments.
-As withaddcontent, the peer provided at the command-line is not necessarily the peerthat hosts the content.
+The ip-address and port of some peer, and the key associated with the content are provided as command-line arguments.
+As with addcontent, the peer provided at the command-line is not necessarily the peer that hosts the content.
 
 Example usage and output:
 
