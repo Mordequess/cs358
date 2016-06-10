@@ -35,16 +35,11 @@ Your peer may shutdown() the connection as soon as it sends this.
 
 */
 
-#include <iostream>
-#include <cstdlib>
-#include <strings.h>
-#include <arpa/inet.h>
-#include "../mybind.c"
+#include "../peer.h"
 #include "addpeer.h"
 
 
 int main(int argc, char *argv[]) {
-   int sockfd;
    switch (argc) {//parse input
       case 3:
          //port - std::atoi(argv[2])
@@ -53,21 +48,7 @@ int main(int argc, char *argv[]) {
          break;
 
       case 1:
-         // Initialize the network "addpeer"
-         sockaddr_in serv_addr; //= new sockaddr_in(AF_INET, 0, addr, 0);
-         /* First call to socket() function */
-         sockfd = socket(AF_INET, SOCK_STREAM, 0);
-         if (sockfd < 0) {
-            perror("ERROR opening socket");
-            exit(1);
-         }
-         bzero((char *) &serv_addr, sizeof(serv_addr));
-         serv_addr.sin_family = AF_INET;
-         inet_aton("0.0.0.0", &serv_addr.sin_addr);
-         if (mybind(sockfd, &serv_addr) < 0) {
-            perror("ERROR on binding");
-            exit(1);
-         }
+         Peer p();
 
          break;
 

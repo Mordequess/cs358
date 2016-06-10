@@ -19,4 +19,4 @@ lookupcontent:
 all: addpeer removepeer addcontent removecontent lookupcontent
 
 clean:
-	rm -r *.exe *.o
+	rm -rf addpeer removepeer addcontent removecontent lookupcontent *.o

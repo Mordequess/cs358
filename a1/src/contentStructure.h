@@ -20,8 +20,7 @@ public:
    static int contentCount;
    std::vector<ContentNode*> s;
 
-   ContentStructure(bool first) {
-      if (first) contentCount = -1; //todo !!
+   ContentStructure() {
    }
 
    //adds the content to this structure

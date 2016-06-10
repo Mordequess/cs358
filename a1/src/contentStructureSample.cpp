@@ -1,7 +1,7 @@
 #include "contentStructure.h"
 
 int main() {
-   ContentStructure s(true);
+   ContentStructure s;
    std::cout << s.addContent("hi") << std::endl;
    std::cout << s.addContent("lo") << std::endl;
    std::cout << s.addContent("fi") << std::endl;
