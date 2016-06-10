@@ -8,7 +8,7 @@
 #define PORT_RANGE_LO 10000
 #define PORT_RANGE_HI 11000
 
-/* 
+/*
  * mybind() -- a wrapper to bind that tries to bind() to a port in the
  * range PORT_RANGE_LO - PORT_RANGE_HI, inclusive.
  *
@@ -26,16 +26,16 @@
  * returns int -- negative return means an error occurred, else the call succeeded.
  */
 
- struct sockaddr_in {
-    short            sin_family;   // e.g. AF_INET
-    unsigned short   sin_port;     // e.g. htons(3490)
-    struct in_addr   sin_addr;     // see struct in_addr, below
-    char             sin_zero[8];  // zero this if you want to
-};
+//  struct sockaddr_in {
+//     short            sin_family;   // e.g. AF_INET
+//     unsigned short   sin_port;     // e.g. htons(3490)
+//     struct in_addr   sin_addr;     // see struct in_addr, below
+//     char             sin_zero[8];  // zero this if you want to
+// };
 
-struct in_addr {
-    unsigned long s_addr;  // load with inet_aton()
-};
+// struct in_addr {
+//     unsigned long s_addr;  // load with inet_aton()
+// };
 
 
 int mybind(int sockfd, struct sockaddr_in *addr) {

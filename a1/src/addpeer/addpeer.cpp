@@ -1,7 +1,7 @@
 /*
 
 addpeer
-This causes a new peer to be created and added to your system. 
+This causes a new peer to be created and added to your system.
 The optional command-line arguments are the ip-address and port associated with one other peer in your system.
 If these command-line arguments are not provided, you assume that this is the first peer in the system.
 You should output the non-loopback ip address and port at which the peer is created.
@@ -35,24 +35,46 @@ Your peer may shutdown() the connection as soon as it sends this.
 
 */
 
+#include <iostream>
+#include <cstdlib>
+#include <strings.h>
+#include <arpa/inet.h>
+#include "../mybind.c"
 #include "addpeer.h"
 
+
 int main(int argc, char *argv[]) {
+   int sockfd;
    switch (argc) {//parse input
       case 3:
          //port - std::atoi(argv[2])
          //ip
          std::cout << argv[2] << std::endl << argv[1] << std::endl;
+         break;
 
       case 1:
-         //if not first, error
-         std::cout << "howdy" << std::endl;
+         // Initialize the network "addpeer"
+         sockaddr_in serv_addr; //= new sockaddr_in(AF_INET, 0, addr, 0);
+         /* First call to socket() function */
+         sockfd = socket(AF_INET, SOCK_STREAM, 0);
+         if (sockfd < 0) {
+            perror("ERROR opening socket");
+            exit(1);
+         }
+         bzero((char *) &serv_addr, sizeof(serv_addr));
+         serv_addr.sin_family = AF_INET;
+         inet_aton("0.0.0.0", &serv_addr.sin_addr);
+         if (mybind(sockfd, &serv_addr) < 0) {
+            perror("ERROR on binding");
+            exit(1);
+         }
+
          break;
 
       default:
          std::cerr << "Usage: addpeer [ ip port ]" << std::endl;
          exit(-1);
-
    } //end of input switch
 
+   return 0;
 }
