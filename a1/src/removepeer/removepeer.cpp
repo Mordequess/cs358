@@ -25,9 +25,16 @@ Error: no such peer
 int main(int argc, char *argv[]) {
    switch (argc) {//parse input
       case 3:
-         //port - std::atoi(argv[2])
-         //ip
-         std::cout << argv[2] << std::endl << argv[1] << std::endl;
+         //Pass this request to the designated peer
+         //if the peer to be removed is me:
+         //int nextPeer = i%(number of peers in system - 1)
+            for (int i = 0; i < s.size(); i++) {
+               //if nextPeer = this one, skip it
+               //while nextPeer.s.size() > ceil(c/p), skip this peer
+               //nextPeer.push_back(s.at(i));
+            }
+            //for i in size of other peers, remove this peer from their lists
+            //delete this peer by closing connections
          break;
 
       default:
