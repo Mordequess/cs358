@@ -1,3 +1,6 @@
+#ifndef OPERATIONS
+#define OPERATIONS
+
 #define ADD_PEER '0'
 #define REMOVE_PEER '1'
 #define ADD_CONTENT '2'
@@ -8,3 +11,5 @@
 #define GET_NUMPEERS_CONTENT '7'
 #define CHANGE_NEIGHBOUR_NEIGHBOUR '8'
 #define ALLKEYS 'a'
+
+#endif
