@@ -38,10 +38,14 @@ Your peer may shutdown() the connection as soon as it sends this.
 #include "../peer.h"
 #include "addpeer.h"
 
+void connectPeer(char *ip, int port) {
+   Peer p;
+   p.addPeerToNetwork(ip, port);
+   //runPeer();
 
+}
 void firstPeer() {
    Peer p;
-   p.begin();
 }
 
 
@@ -53,30 +57,17 @@ void runPeer() {
          std::cerr << "Uh-Oh! fork() failed.\n";
          exit(1);
       case 0: /* Child process */
-         firstPeer();
+         firstPeer(); 
+
+         //TODO: connect new processes if not first
+         // if --  connectPeer(a,b);
+
          break;
       default: /* Parent process */
          std::cout << "Process created with pid " << pid << "\n";
-         // int status;
-
-         // while (!WIFEXITED(status)) {
-         //     waitpid(pid, status, 0);  Wait for the process to complete
-         // }
-
-         // std::cout << "Process exited with " << WEXITSTATUS(status) << "\n";
          return;
    }
 }
-
-
-void connectPeer(char *ip, int port) {
-   Peer p;
-   p.addPeerToNetwork(ip, port);
-   runPeer();
-
-}
-
-
 
 int main(int argc, char *argv[]) {
    switch (argc) {//parse input
@@ -89,8 +80,7 @@ int main(int argc, char *argv[]) {
 
       case 1:
          std::cout << "1st peer being created" << std::endl;
-         firstPeer();
-         //runPeer();
+         runPeer();
          //std::cout << p.non-loopback ip address << p.port
          break;
 

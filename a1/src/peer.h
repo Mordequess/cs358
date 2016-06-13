@@ -69,19 +69,31 @@ public:
       leftPeer = rightPeer = serv_addr;
 
       //ready
-      std::cout << "My ip:" << inet_ntoa(serv_addr.sin_addr) << ":" << serv_addr.sin_port << std::endl;
+      std::cout << inet_ntoa(serv_addr.sin_addr) << " " << serv_addr.sin_port << std::endl;
       begin();
    }
 
    //this method is called if this peer is not the first
    void addPeerToNetwork(char *ip, int port) {}
 
+   //this method is called after creation by the new processes
+   //when we receive a kill command, we run off the end of this method and the process dies
    void begin() {
-      std::cout << "IT HAS BEGUN" << std::endl;
-      for (int i = 0; i < 30; i++) {
-         //std::cout << i << std::endl;
+      std::cout << "im gonna listen" << std::endl;
+      listen(sockfd, 10); // set s up to be a server (listening) socket
+      std::cout << "listening!" << std::endl;
+
+      int newSocket;
+      sockaddr remoteAddress;
+      socklen_t remoteAddressLength;
+      int count = 0;
+      while (true) {
+         newSocket = accept(sockfd, &remoteAddress, &remoteAddressLength); //this blocks: how to pass control?
+         // now you can send() and recv() with the connected client via socket newSocket
+         //recv();
+         //parse, act, respond
+         //if (remoteAddress->)
       }
-      while (true);
    }
 
 };
