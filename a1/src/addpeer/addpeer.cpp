@@ -38,6 +38,8 @@ Your peer may shutdown() the connection as soon as it sends this.
 #include "../peer.h"
 #include "addpeer.h"
 
+
+
 void connectPeer(char *ip, int port) {
    Peer p;
    p.addPeerToNetwork(ip, port);

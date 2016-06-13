@@ -25,74 +25,61 @@ Error: no such peer
 
 #include "addcontent.h"
 
-int addContent(int IP, int port, std::string content) {
-   int sockfd = socket(PF_INET, SOCK_STREAM, 0); // do some error checking!
+#include <arpa/inet.h>
+#include <netdb.h>
 
-   dest_addr.sin_family = AF_INET;          // host byte order
-   dest_addr.sin_port = htons(port);   // short, network byte order
-   dest_addr.sin_addr.s_addr = inet_addr(IP);
-   //memset(&(dest_addr.sin_zero), '\0', 8);  // zero the rest of the struct
-   // don't forget to error check the connect()!
+#include <iostream>
+#include <cstdlib>
+#include <unistd.h>
+
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+int addContent(char *ip, int port, std::string content) {
+   //connect to target
+   int sockfd = socket(PF_INET, SOCK_STREAM, 0); //TODO: do some error checking!
+   sockaddr_in dest_addr;
+
+   dest_addr.sin_family = AF_INET;
+   dest_addr.sin_port = htons(port);
+   dest_addr.sin_addr.s_addr = inet_addr(ip);
+   memset(&(dest_addr.sin_zero), '\0', 8);  // zero the rest of the struct
+   
 
    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
        exit(-1);
-   } 
+   } //TODO: don't forget to error check the connect()!
 
+   //send "addcontent" message
    int len, bytes_sent;
-   std::string msg = "2:"+content;
+   std::string msg = "2:" + content + "\0";
    len = msg.length();
-   bytes_sent = send(sockfd, (char *)msg, len, 0);
+   bytes_sent = send(sockfd, msg.c_str(), len, 0);
+
+   //receive unique id back
+   int byte_count;
+   char uniqueId[4];
+   byte_count = recv(sockfd, uniqueId, sizeof(int), 0);
+   //TODO: if byte_count != 4, heart attack
 
    close(sockfd);
+   std::cout << atoi(uniqueId) << std::endl;
+   return atoi(uniqueId);
 }
 
-
-
-
-
-
 int main(int argc, char *argv[]) {
+   char *ip;
+   int port;
+   std::string content;
+
    switch (argc) {//parse input
       case 4:
-      sockfd = socket(AF_INET, SOCK_STREAM, 0);
-      if (sockfd < 0) {
-         perror("ERROR opening socket");
-         exit(1);
-      }
-      bzero((char *) &my_server_info, sizeof(my_server_info));
-      my_server_info.sin_family = AF_INET;
-      if (pickServerIPAddr(&my_server_info.sin_addr) < 0) {
-         perror("ERROR picking ip");
-         exit(1);
-      }
-      if (mybind(sockfd, &my_server_info) < 0) {
-         perror("ERROR on binding");
-         exit(1);
-      }
-
-
-
-
-
-
-
-         int newSocket;
-         sockaddr remoteAddress;
-         socklen_t remoteAddressLength;
-         int count = 0 , byte_count;
-         char buffer[512];
-
-         newSocket = accept(sockfd, &remoteAddress, &remoteAddressLength); //this blocks: how to pass control?
-
-
-
-
-         //forward the request to the input ip/port.
-         //if this peer matches those params
-            //if more than a single peer
-               //if s.size()+1 > ceil(c/p)
-                  //pass to the next peer in line for load balancing
-            //std::cout << s.addContent(argv[3])) << std::endl;
+         ip = argv[1];
+         port = atoi(argv[2]);
+         content = argv[3];
+         addContent(ip, port, content);
          break;
 
       default:

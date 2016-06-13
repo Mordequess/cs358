@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
    dest_addr.sin_family = AF_INET;          // host byte order
    dest_addr.sin_port = htons(atoi(argv[2]));   // short, network byte order
    dest_addr.sin_addr.s_addr = inet_addr(argv[1]);
-   //memset(&(dest_addr.sin_zero), '\0', 8);  // zero the rest of the struct
+   memset(&(dest_addr.sin_zero), '\0', 8);  // zero the rest of the struct
 
    // don't forget to error check the connect()!
    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
