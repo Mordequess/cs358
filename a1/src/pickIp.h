@@ -33,9 +33,6 @@ int pickServerIPAddr(struct in_addr *srv_ip) {
          if(strcmp(inet_ntoa(*srv_ip), "127.0.0.1") == 0) {
             continue;
          }
-         //printf("Pick server-ip ");
-         //printf("%s [y to accept]: ", inet_ntoa(*srv_ip));
-         //TODO: figure out how to properly find the right ip
          freeifaddrs(ifa);
          return 0;
       }

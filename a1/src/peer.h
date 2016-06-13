@@ -44,6 +44,7 @@ public:
    ContentStructure content;
 
    int sockfd;
+   int numPeers;
    sockaddr_in serv_addr;
    sockaddr_in leftPeer;
    sockaddr_in rightPeer;
@@ -66,6 +67,7 @@ public:
          exit(1);
       }
 
+      numPeers = 0;
       leftPeer = rightPeer = serv_addr;
 
       //ready
@@ -91,9 +93,26 @@ public:
       while (true) {
          newSocket = accept(sockfd, &remoteAddress, &remoteAddressLength); //this blocks: how to pass control?
          std::cout << "WE CONNECTED" << std::endl;
-         
+
          // all right!  now that we're connected, we can recieve some data!
          byte_count = recv(newSocket, buffer, sizeof(buffer), 0);
+
+         switch(buffer[0] - '0') {
+            case 0:
+               std::cout << "Adding a peer to the network";
+               break;
+            case 1:
+               std::cout << "Removing a peer from the network";
+            case 2:
+               std::cout << "Removing a peer from the network";
+            case 3:
+               std::cout << "Removing a peer from the network";
+            case 4:
+               std::cout << "Removing a peer from the network";
+            default:
+               std::cout << "This should not be possible" << std::endl;
+         }
+
          printf("recv()'d %d bytes of data in buf\n", byte_count);
          printf("I got: %s", buffer);
          std::cout << std::endl;
