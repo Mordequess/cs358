@@ -1,7 +1,7 @@
 #ifndef PEER
 #define PEER
 
-#include "contentStructure.h"
+#include "containerStructure.h"
 #include "mybind.h"
 #include "pickIp.h"
 #include "operations.h"
@@ -42,7 +42,7 @@ const char *gai_strerror(int errcode);
 class Peer {
 public:
    //std::vector<Peer*> peerlist;
-   ContentStructure content;
+   ContentStructure container;
 
    int sockfd;
    int numPeers;
@@ -82,7 +82,7 @@ public:
 
    int executeCommand(char *message, int senderSocket) {
 
-      // std::string content = message.substr(2);
+      // std::string container = message.substr(2);
 
       switch(message[0]) {
          case ADD_PEER: //'0'
@@ -92,22 +92,22 @@ public:
             std::cout << "Removing a peer from the network";
             break;
          case ADD_CONTENT: // '2'
-            std::cout << "Adding a piece of content network";
+            std::cout << "Adding a piece of container network";
             break;
          case REMOVE_CONTENT: // '3'
-            std::cout << "Removing a piece of content from the network";
+            std::cout << "Removing a piece of container from the network";
             break;
          case MOVE_CONTENT: // '4'
-            std::cout << "Moving content across the network";
+            std::cout << "Moving container across the network";
             break;
          case LOOKUP_CONTENT: // '5'
-            std::cout << "Look up content on the network";
+            std::cout << "Look up container on the network";
             break;
          case CHANGE_NUMPEERS_CONTENT: // '6'
-            std::cout << "Change number of peers, content on the network";
+            std::cout << "Change number of peers, container on the network";
             break;
          case GET_NUMPEERS_CONTENT: // '7'
-            std::cout << "Retrieve number of peers, content on the network";
+            std::cout << "Retrieve number of peers, container on the network";
             break;
          case CHANGE_NEIGHBOUR_NEIGHBOUR: // '8'
             std::cout << "Change peer neighbours in the network";
