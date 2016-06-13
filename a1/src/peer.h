@@ -40,10 +40,12 @@ const char *gai_strerror(int errcode);
 class Peer {
 public:
    //static std::vector<Peer*> peerlist;
-   ContentStructure s;
+   ContentStructure content;
 
    int sockfd;
    sockaddr_in serv_addr; //= new sockaddr_in(AF_INET, 0, addr, 0);
+   sockaddr_in leftPeer;
+   sockaddr_in rightPeer;
 
    Peer() {
       std::cout << "we made one!" << std::endl;
@@ -61,11 +63,22 @@ public:
          perror("ERROR on binding");
          exit(1);
       }
+
+      std::cout << serv_addr.sin_addr.s_addr << std::endl;
+      std::cout << serv_addr.sin_port << std::endl;
    }
 
-   void addPeerToList() {
-
+   void setupNetwork() {
+      leftPeer = serv_addr;
+      rightPeer = serv_addr;
+      std::cout << "Peer address " << &serv_addr << std::endl;
+      std::cout << "Left address " << &leftPeer << std::endl;
+      std::cout << "Right address " << &rightPeer << std::endl;
    }
+
+   void addPeerToNetwork(char *ip, int port) {}
+
+
 
 
 

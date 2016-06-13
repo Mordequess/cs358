@@ -39,20 +39,34 @@ Your peer may shutdown() the connection as soon as it sends this.
 #include "addpeer.h"
 
 
+void connectPeer(char *ip, int port) {
+   Peer p;
+   p.addPeerToNetwork(ip, port);
+
+}
+
+void firstPeer() {
+   Peer p;
+   p.setupNetwork();
+   std::cout << "Network created" << std::endl;
+}
+
+
 int main(int argc, char *argv[]) {
 
-   Peer p;
 
    switch (argc) {//parse input
       case 3:
          //port - std::atoi(argv[2])
          //ip
          std::cout << argv[2] << std::endl << argv[1] << std::endl;
+         connectPeer(argv[1], std::atoi(argv[2]));
          break;
 
       case 1:
          std::cout << "did we make one?" << std::endl;
-         p.addPeerToList();
+         firstPeer();
+
          //std::cout << p.non-loopback ip address << p.port
          break;
 
