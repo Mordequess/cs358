@@ -46,6 +46,7 @@ public:
 
    int sockfd;
    int numPeers;
+   int numContent;
    sockaddr_in my_server_info;
    sockaddr_in leftPeer;
    sockaddr_in rightPeer;
@@ -68,7 +69,7 @@ public:
          exit(1);
       }
 
-      numPeers = 0;
+      numPeers = numContent = 0;
       leftPeer = rightPeer = my_server_info;
 
       //ready
