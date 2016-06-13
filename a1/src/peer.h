@@ -4,6 +4,7 @@
 #include "contentStructure.h"
 #include "mybind.h"
 #include "pickIp.h"
+#include "operations.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -78,13 +79,45 @@ public:
    //this method is called if this peer is not the first
    void addPeerToNetwork(char *ip, int port) {}
 
-   int executeCommand(std::string message) {
-      std::string content = message.substr(2);
-      switch(atoi(message[0])) {
-         case 0:
-            //addcontent
-      };
-   }
+   int executeCommand(char *message) {
+
+      // std::string content = message.substr(2);
+
+      switch(message[0]) {
+         case ADD_PEER: //'0'
+            std::cout << "Adding a peer to the network";
+            break;
+         case REMOVE_PEER: // '1'
+            std::cout << "Removing a peer from the network";
+            break;
+         case ADD_CONTENT: // '2'
+            std::cout << "Adding a piece of content network";
+            break;
+         case REMOVE_CONTENT: // '3'
+            std::cout << "Removing a piece of content from the network";
+            break;
+         case MOVE_CONTENT: // '4'
+            std::cout << "Moving content across the network";
+            break;
+         case LOOKUP_CONTENT: // '5'
+            std::cout << "Look up content on the network";
+            break;
+         case CHANGE_NUMPEERS_CONTENT: // '6'
+            std::cout << "Change number of peers, content on the network";
+            break;
+         case GET_NUMPEERS_CONTENT: // '7'
+            std::cout << "Retrieve number of peers, content on the network";
+            break;
+         case CHANGE_NEIGHBOUR_NEIGHBOUR: // '8'
+            std::cout << "Change peer neighbours in the network";
+            break;
+         case ALLKEYS: // 'a'
+            std::cout << "Output all keys at node";
+            break;
+         default:
+            std::cout << "This should not be possible" << std::endl;
+      }
+}
 
    //this method is called after creation by the new processes
    //when we receive a kill command, we run off the end of this method and the process dies
@@ -105,21 +138,7 @@ public:
          // all right!  now that we're connected, we can recieve some data!
          byte_count = recv(newSocket, buffer, sizeof(buffer), 0);
 
-         switch(buffer[0] - '0') {
-            case 0:
-               std::cout << "Adding a peer to the network";
-               break;
-            case 1:
-               std::cout << "Removing a peer from the network";
-            case 2:
-               std::cout << "Removing a peer from the network";
-            case 3:
-               std::cout << "Removing a peer from the network";
-            case 4:
-               std::cout << "Removing a peer from the network";
-            default:
-               std::cout << "This should not be possible" << std::endl;
-         }
+
 
          printf("recv()'d %d bytes of data in buf\n", byte_count);
          printf("I got: %s", buffer);
