@@ -45,7 +45,7 @@ public:
 
    int sockfd;
    int numPeers;
-   sockaddr_in serv_addr;
+   sockaddr_in my_server_info;
    sockaddr_in leftPeer;
    sockaddr_in rightPeer;
 
@@ -56,31 +56,39 @@ public:
          perror("ERROR opening socket");
          exit(1);
       }
-      bzero((char *) &serv_addr, sizeof(serv_addr));
-      serv_addr.sin_family = AF_INET;
-      if (pickServerIPAddr(&serv_addr.sin_addr) < 0) {
+      bzero((char *) &my_server_info, sizeof(my_server_info));
+      my_server_info.sin_family = AF_INET;
+      if (pickServerIPAddr(&my_server_info.sin_addr) < 0) {
          perror("ERROR picking ip");
          exit(1);
       }
-      if (mybind(sockfd, &serv_addr) < 0) {
+      if (mybind(sockfd, &my_server_info) < 0) {
          perror("ERROR on binding");
          exit(1);
       }
 
       numPeers = 0;
-      leftPeer = rightPeer = serv_addr;
+      leftPeer = rightPeer = my_server_info;
 
       //ready
-      std::cout << inet_ntoa(serv_addr.sin_addr) << " " << ntohs(serv_addr.sin_port) << std::endl;
-      begin();
+      std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
+      run();
    }
 
    //this method is called if this peer is not the first
    void addPeerToNetwork(char *ip, int port) {}
 
+   int executeCommand(std::string message) {
+      std::string content = message.substr(2);
+      switch(atoi(message[0])) {
+         case 0:
+            //addcontent
+      };
+   }
+
    //this method is called after creation by the new processes
    //when we receive a kill command, we run off the end of this method and the process dies
-   void begin() {
+   void run() {
       listen(sockfd, 10); // set s up to be a server (listening) socket
       std::cout << "listening!" << std::endl;
 
