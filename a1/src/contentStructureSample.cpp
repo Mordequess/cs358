@@ -2,24 +2,25 @@
 
 int main() {
    ContentStructure s;
-   std::cout << s.addContent("hi") << std::endl;
-   std::cout << s.addContent("lo") << std::endl;
-   std::cout << s.addContent("fi") << std::endl;
-   std::cout << s.addContent("wi") << std::endl;
-   std::cout << s.addContent("ai") << std::endl;
-   std::cout << s.addContent("di") << std::endl;
-   std::cout << s.addContent("fi") << std::endl;
+   s.addContent("hi", 0);
+   s.addContent("lo", 1);
+   s.addContent("fi", 2);
+   s.addContent("wi", 3);
+   s.addContent("ai", 4);
+   s.addContent("di", 5);
+   s.addContent("fi", 6);
+   std::cout << "adds complete" << std::endl;
 
-   ContentNode *t;
+   std::string t;
 
    t = s.lookupContent(3);
-   if (t != NULL) std::cout << t->content << std::endl;
-   else std::cerr << "Error: no such content" << std::endl;
+   if (t != "") std::cout << t << std::endl;
+   else std::cerr << "Error: no such content" << std::endl; //should output "wi"
 
    t = s.lookupContent(9);
-   if (t != NULL) std::cout << t->content << std::endl;
-   else std::cerr << "Error: no such content" << std::endl;
+   if (t != "") std::cout << t << std::endl;
+   else std::cerr << "Error: no such content" << std::endl; //should error
 
-   if (!s.removeContent(3)) std::cerr << "Error: no such content" << std::endl; 
-   if (!s.removeContent(9)) std::cerr << "Error: no such content" << std::endl; 
+   if (!s.removeContent(3)) std::cerr << "Error: no such content" << std::endl; //should work silently
+   if (!s.removeContent(9)) std::cerr << "Error: no such content" << std::endl; //should error
 }
