@@ -76,7 +76,16 @@ public:
       std::cout << "Right address " << &rightPeer << std::endl;
    }
 
-   void addPeerToNetwork(char *ip, int port) {}
+   void addPeerToNetwork(char *ip, int port) {
+
+   }
+
+   void begin() {
+      std::cout << "IT HAS BEGUN" << std::endl;
+      for (int i = 0; i < 30; i++) {
+         std::cout << i << std::endl;
+      }
+   }
 
 
 
