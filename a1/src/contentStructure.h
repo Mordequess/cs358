@@ -4,31 +4,41 @@
 #include <iostream>
 #include <vector>
 
-class ContentNode {
-public:
-   std::string content;
-   int unique_id;
 
-   ContentNode(std::string c, int u) {
-      content = c;
-      unique_id = u;
-   }
-};
 
 class ContentStructure {
-public:
-   static int contentCount;
+private:
+   class ContentNode {
+   public:
+      std::string content;
+      int unique_id;
+
+      ContentNode(std::string c, int u) {
+         content = c;
+         unique_id = u;
+      }
+   };
+
    std::vector<ContentNode*> s;
+
+public:
 
    ContentStructure() {
    }
 
-   //adds the content to this structure
-   //returns the unique_id
-   int addContent(std::string c) {
-      ContentNode* newNode = new ContentNode(c, ++contentCount);
-      s.push_back(newNode);
-      return contentCount;
+   //adds content to this structure
+   void addContent(std::string c, int id) {
+      ContentNode *newNode = new ContentNode(c, id);
+      if (s.size() < 1) {
+         s.push_back(newNode);
+         return;
+      }
+      for (int i = s.size()-1; i >= 0; --i) {
+         if (newNode->unique_id > s[i]->unique_id) {
+            s.insert(s.begin()+i+1, newNode);
+            break;
+         }
+      }
    }
 
    //pass in unique_id of content to be removed
@@ -48,17 +58,16 @@ public:
    }
 
    //pass in unique_id of content you are looking for
-   //returns Node* of content if it exists
-   //returns NULL if content does not exist in this structure
-   ContentNode* lookupContent(int id) {
+   //returns content string if it exists here
+   //returns empty string if content does not exist in this structure
+   std::string lookupContent(int id) {
       int iter = 0; 
-      while (s[iter]->unique_id != id) {
+      while (s.at(iter)->unique_id != id) {
          iter++;
-         if (iter == s.size()) return NULL;
+         if (iter == s.size()) return "";
       }
-      return s[iter];
+      return s.at(iter)->content;
    }
 };
-int ContentStructure::contentCount = -1;
 
 #endif
