@@ -23,14 +23,14 @@ int pickServerIPAddr(struct in_addr *srv_ip) {
    struct ifaddrs *ifa;
    if(getifaddrs(&ifa) < 0) {
       perror("getifaddrs"); exit(-1);
-   } 
+   }
 
    char c;
    for(struct ifaddrs *i = ifa; i != NULL; i = i->ifa_next) {
       if(i->ifa_addr == NULL) continue;
       if(i->ifa_addr->sa_family == AF_INET) {
+         if(strcmp(inet_ntoa(*srv_ip), "127.0.0.1")) continue;
          memcpy(srv_ip, &(((struct sockaddr_in *)(i->ifa_addr))->sin_addr), sizeof(struct in_addr));
-if(inet_ntoa(*srv_ip) == "127.0.0.1") continue;
          //printf("Pick server-ip ");
          //printf("%s [y to accept]: ", inet_ntoa(*srv_ip));
          //TODO: figure out how to properly find the right ip

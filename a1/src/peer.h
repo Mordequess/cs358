@@ -69,7 +69,7 @@ public:
       leftPeer = rightPeer = serv_addr;
 
       //ready
-      std::cout << inet_ntoa(serv_addr.sin_addr) << " " << serv_addr.sin_port << std::endl;
+      std::cout << inet_ntoa(serv_addr.sin_addr) << " " << ntohs(serv_addr.sin_port) << std::endl;
       begin();
    }
 
