@@ -68,17 +68,9 @@ public:
 
       std::cout << "ip  : " << inet_ntoa(serv_addr.sin_addr) << ":" << serv_addr.sin_port << std::endl;
 
-
-      //listen
-      //loop:
-      //    accept
-      //    parse
-      //    act
-      //    respond
-
    }
 
-   //only called by the first peer
+   //only called by addpeer if creating the first peer
    void setupNetwork() {
       leftPeer = rightPeer = serv_addr;
       std::cout << "My address    :" << inet_ntoa(serv_addr.sin_addr) << ":" << serv_addr.sin_port << " at memory " << &serv_addr << std::endl;
@@ -89,7 +81,24 @@ public:
    void addPeerToNetwork(char *ip, int port) {}
 
 
+   void begin() {
+      std::cout << "im gonna listen" << std::endl;
+      listen(sockfd, 10); // set s up to be a server (listening) socket
+      std::cout << "listening!" << std::endl;
 
+      sockaddr *incomingAddress;
+      socklen_t *sizeOfRequest;
+      int count = 0;
+      while (true) {
+         std::cout << count++ << std::endl;
+         int newSocket = accept(sockfd, incomingAddress, sizeOfRequest); //this blocks: how to pass control?
+         //parse
+         //act
+         //respond
+      }
+
+
+   }
 
 
 };
