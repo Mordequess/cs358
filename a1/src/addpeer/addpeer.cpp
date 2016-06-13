@@ -40,6 +40,10 @@ Your peer may shutdown() the connection as soon as it sends this.
 
 
 int main(int argc, char *argv[]) {
+
+   //Does main maintain our list of peers on this network?
+   //std::vector<Peer> peers; //?
+
    switch (argc) {//parse input
       case 3:
          //port - std::atoi(argv[2])
@@ -50,7 +54,8 @@ int main(int argc, char *argv[]) {
       case 1:
          std::cout << "did we make one?" << std::endl;
          Peer p();
-
+         //peers.push_back(p)?
+         //std::coud << p.non-loopback ip address << p.port
          break;
 
       default:

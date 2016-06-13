@@ -20,10 +20,17 @@ Come, Thou Tortoise
 int main(int argc, char *argv[]) {
    switch (argc) {//parse input
       case 4:
-         //key
-         //port - std::atoi(argv[2])
-         //ip
-         std::cout << argv[2] << std::endl << argv[1] << std::endl;
+         int key = std::atoi(argv[3]);
+         int port = std::atoi(argv[2]);
+         int ip = inet_aton(atgv[1]);
+         //Pass this request to the designated peer
+         //if that peer might be me:
+            ContentNode* node = s.lookupcontent(key);
+            if(node != NULL)
+               std::cout << node.content << std::endl;
+            else
+               //if nextPeer == initialRequestedPeer, return "Error: no such content"
+               //pass to the next peer
          break;
 
       default:

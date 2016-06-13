@@ -28,10 +28,12 @@ Error: no such peer
 int main(int argc, char *argv[]) {
    switch (argc) {//parse input
       case 4:
-         //content
-         //port - std::atoi(argv[2])
-         //ip
-         std::cout << argv[2] << std::endl << argv[1] << std::endl;
+         //forward the request to the input ip/port.
+         //if this peer matches those params
+            //if more than a single peer
+               //if s.size()+1 > ceil(c/p)
+                  //pass to the next peer in line for load balancing
+            //std::cout << s.addContent(argv[3])) << std::endl;
          break;
 
       default:
