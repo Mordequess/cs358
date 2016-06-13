@@ -41,14 +41,11 @@ Your peer may shutdown() the connection as soon as it sends this.
 
 void firstPeer() {
    Peer p;
-   p.setupNetwork();
-   std::cout << "Network created" << std::endl;
    p.begin();
 }
 
 
 void runPeer() {
-
    pid_t pid = fork(); /* Create a child process */
 
    switch (pid) {
@@ -82,8 +79,6 @@ void connectPeer(char *ip, int port) {
 
 
 int main(int argc, char *argv[]) {
-
-
    switch (argc) {//parse input
       case 3:
          //port - std::atoi(argv[2])
@@ -93,9 +88,9 @@ int main(int argc, char *argv[]) {
          break;
 
       case 1:
-         std::cout << "did we make one?" << std::endl;
-         runPeer();
-
+         std::cout << "1st peer being created" << std::endl;
+         firstPeer();
+         //runPeer();
          //std::cout << p.non-loopback ip address << p.port
          break;
 
