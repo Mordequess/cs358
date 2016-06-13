@@ -79,7 +79,7 @@ public:
    //this method is called if this peer is not the first
    void addPeerToNetwork(char *ip, int port) {}
 
-   int executeCommand(char *message) {
+   int executeCommand(char *message, int senderSocket) {
 
       // std::string content = message.substr(2);
 
@@ -132,31 +132,10 @@ public:
       char buffer[512];
 
       while (true) {
-         newSocket = accept(sockfd, &remoteAddress, &remoteAddressLength); //this blocks: how to pass control?
-         std::cout << "WE CONNECTED" << std::endl;
-
-         // all right!  now that we're connected, we can recieve some data!
-         byte_count = recv(newSocket, buffer, sizeof(buffer), 0);
-
-
-
-         printf("recv()'d %d bytes of data in buf\n", byte_count);
-         printf("I got: %s", buffer);
-         std::cout << std::endl;
-
-         /*
-         while (recv(newSocket, buffer, length, 0) != 0) {
-            //parse, act, respond
-            std::cout << "buffer said -:" (std::string)(buffer *) << " " << length << std::endl;
-            return;
-
-            switch (length) { //TODO: should be buffer?
-               default:
-                  std::cout << buffer << std::endl;
-                  return;
-            }
+         newSocket = accept(sockfd, &remoteAddress, &remoteAddressLength);
+         while (recv(newSocket, buffer, sizeof(buffer), 0) != 0) {
+            executeCommand(buffer, newSocket);
          }
-         */
       }
    }
 
