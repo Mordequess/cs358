@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
          break;
 
       case 1:
+         std::cout << "did we make one?" << std::endl;
          Peer p();
 
          break;
