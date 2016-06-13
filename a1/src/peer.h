@@ -79,20 +79,38 @@ public:
    //this method is called after creation by the new processes
    //when we receive a kill command, we run off the end of this method and the process dies
    void begin() {
-      std::cout << "im gonna listen" << std::endl;
       listen(sockfd, 10); // set s up to be a server (listening) socket
       std::cout << "listening!" << std::endl;
 
       int newSocket;
       sockaddr remoteAddress;
       socklen_t remoteAddressLength;
-      int count = 0;
+      int count = 0 , byte_count;
+      char buffer[512];
+
       while (true) {
          newSocket = accept(sockfd, &remoteAddress, &remoteAddressLength); //this blocks: how to pass control?
-         // now you can send() and recv() with the connected client via socket newSocket
-         //recv();
-         //parse, act, respond
-         //if (remoteAddress->)
+         std::cout << "WE CONNECTED" << std::endl;
+         
+         // all right!  now that we're connected, we can recieve some data!
+         byte_count = recv(newSocket, buffer, sizeof(buffer), 0);
+         printf("recv()'d %d bytes of data in buf\n", byte_count);
+         printf("I got: %s", buffer);
+         std::cout << std::endl;
+
+         /*
+         while (recv(newSocket, buffer, length, 0) != 0) {
+            //parse, act, respond
+            std::cout << "buffer said -:" (std::string)(buffer *) << " " << length << std::endl;
+            return;
+
+            switch (length) { //TODO: should be buffer?
+               default:
+                  std::cout << buffer << std::endl;
+                  return;
+            }
+         }
+         */
       }
    }
 
