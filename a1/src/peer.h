@@ -3,6 +3,7 @@
 
 #include "contentStructure.h"
 #include "mybind.h"
+#include "pickIp.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -58,22 +59,31 @@ public:
       }
       bzero((char *) &serv_addr, sizeof(serv_addr));
       serv_addr.sin_family = AF_INET;
-      inet_aton("0.0.0.0", &serv_addr.sin_addr);
+      if (pickServerIPAddr(&serv_addr.sin_addr) < 0) ; //TODO: fail
+      //inet_aton("0.0.0.0", &serv_addr.sin_addr);
       if (mybind(sockfd, &serv_addr) < 0) {
          perror("ERROR on binding");
          exit(1);
       }
 
-      std::cout << serv_addr.sin_addr.s_addr << std::endl;
-      std::cout << serv_addr.sin_port << std::endl;
+      std::cout << "ip  : " << inet_ntoa(serv_addr.sin_addr) << ":" << serv_addr.sin_port << std::endl;
+
+
+      //listen
+      //loop:
+      //    accept
+      //    parse
+      //    act
+      //    respond
+
    }
 
+   //only called by the first peer
    void setupNetwork() {
-      leftPeer = serv_addr;
-      rightPeer = serv_addr;
-      std::cout << "Peer address " << &serv_addr << std::endl;
-      std::cout << "Left address " << &leftPeer << std::endl;
-      std::cout << "Right address " << &rightPeer << std::endl;
+      leftPeer = rightPeer = serv_addr;
+      std::cout << "My address    :" << inet_ntoa(serv_addr.sin_addr) << ":" << serv_addr.sin_port << " at memory " << &serv_addr << std::endl;
+      std::cout << "Left address  :" << inet_ntoa(leftPeer.sin_addr) << ":" << leftPeer.sin_port << " at memory " << &leftPeer << std::endl;
+      std::cout << "Right address :" << inet_ntoa(rightPeer.sin_addr) << ":" << rightPeer.sin_port << " at memory " << &rightPeer << std::endl;
    }
 
    void addPeerToNetwork(char *ip, int port) {}

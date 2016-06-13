@@ -16,19 +16,23 @@ $ removecontent 3.4.5.6 12013 12
 
 #include "removecontent.h"
 #include <arpa/inet.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[]) {
+
+   int key, port, ip;
+
    switch (argc) {//parse input
       case 4:
-         int key = std::atoi(argv[3]);
-         int port = std::atoi(argv[2]);
-         int ip = inet_aton(atgv[1]);
+         key = atoi(argv[3]);
+         port = atoi(argv[2]);
+         //ip = inet_aton(argv[1]);
 
          //Check if this peer hosts the content
-         if (s.lookupContent(key) != NULL)
+         //if (s.lookupContent(key) != NULL)
             // If this peer hosts it,
-            s.removecontent(key);
-         else
+            //s.removeContent(key);
+         //else
             //Forward the request to the next peer?
             //if nextPeer == initialRequestedPeer, return "Error: no such content"
          break;

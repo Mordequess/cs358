@@ -17,18 +17,21 @@ Come, Thou Tortoise
 #include "lookupcontent.h"
 #include "../peer.h"
 
+#include <stdlib.h>
+
 int main(int argc, char *argv[]) {
+   int key, port, ip;
    switch (argc) {//parse input
       case 4:
-         int key = std::atoi(argv[3]);
-         int port = std::atoi(argv[2]);
-         int ip = inet_aton(atgv[1]);
+         key = atoi(argv[3]);
+         port = atoi(argv[2]);
+         //ip = inet_aton(atgv[1]);
          //Pass this request to the designated peer
          //if that peer might be me:
-            ContentNode* node = s.lookupcontent(key);
-            if(node != NULL)
-               std::cout << node.content << std::endl;
-            else
+            //ContentNode* node = s.lookupcontent(key);
+            // if(node != NULL)
+            //    std::cout << node.content << std::endl;
+            // else
                //if nextPeer == initialRequestedPeer, return "Error: no such content"
                //pass to the next peer
          break;
