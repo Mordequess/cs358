@@ -48,8 +48,8 @@ void connectPeer(char *ip, int port) {
 }
 void firstPeer() {
    Peer p;
+   std::cerr << "THE PEER DIED" << std::endl;
 }
-
 
 void runPeer() {
    pid_t pid = fork(); /* Create a child process */

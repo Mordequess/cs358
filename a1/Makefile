@@ -1,5 +1,5 @@
 CXX= g++
-CXXFLAGS = 
+CXXFLAGS = -std=c++11 -g
 
 addpeer:
 	$(CXX) src/addpeer/*  $(CXXFLAGS) -o addpeer

@@ -1,7 +1,7 @@
 #ifndef PEER
 #define PEER
 
-#include "containerStructure.h"
+#include "contentStructure.h"
 #include "mybind.h"
 #include "pickIp.h"
 #include "operations.h"
@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <unistd.h> //close
 
 /*
 struct addrinfo {
@@ -47,6 +48,7 @@ public:
    int sockfd;
    int numPeers;
    int numContent;
+
    sockaddr_in my_server_info;
    sockaddr_in leftPeer;
    sockaddr_in rightPeer;
@@ -74,69 +76,96 @@ public:
 
       //ready
       std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
+      //TODO: print here? return as msg?
       run();
    }
 
    //this method is called if this peer is not the first
    void addPeerToNetwork(char *ip, int port) {}
 
-   int executeCommand(char *message, int senderSocket) {
+   void addContentCommand(std::string c, int senderSocket) {
+      int id = numContent++;
+      container.addContent(c, id); 
+      //TODO: tell everybody about incremented contentcount
 
-      // std::string container = message.substr(2);
+      //send "unique id" message
+      int len, bytes_sent;
+      char msg[5];
+      len = snprintf(&msg[0], 5, "%d", id);
+      bytes_sent = send(senderSocket, msg, len*sizeof(char), 0);
+   }
+
+   int executeCommand(char *message, int senderSocket) {
+      // std::string cont = message.substr(2);
 
       switch(message[0]) {
          case ADD_PEER: //'0'
             std::cout << "Adding a peer to the network";
             break;
+
          case REMOVE_PEER: // '1'
             std::cout << "Removing a peer from the network";
             break;
+
          case ADD_CONTENT: // '2'
-            std::cout << "Adding a piece of container network";
+            addContentCommand(std::string(message).substr(2), senderSocket);
             break;
+
          case REMOVE_CONTENT: // '3'
-            std::cout << "Removing a piece of container from the network";
+            std::cout << "Removing a piece of content from the network";
             break;
+
          case MOVE_CONTENT: // '4'
-            std::cout << "Moving container across the network";
+            std::cout << "Moving content across the network";
             break;
+
          case LOOKUP_CONTENT: // '5'
-            std::cout << "Look up container on the network";
+            std::cout << "Look up content on the network";
             break;
+
          case CHANGE_NUMPEERS_CONTENT: // '6'
-            std::cout << "Change number of peers, container on the network";
+            std::cout << "Change number of peers, content on the network";
             break;
+
          case GET_NUMPEERS_CONTENT: // '7'
-            std::cout << "Retrieve number of peers, container on the network";
+            std::cout << "Retrieve number of peers, content on the network";
             break;
+
          case CHANGE_NEIGHBOUR_NEIGHBOUR: // '8'
             std::cout << "Change peer neighbours in the network";
             break;
+
          case ALLKEYS: // 'a'
             std::cout << "Output all keys at node";
             break;
+
          default:
-            std::cout << "This should not be possible" << std::endl;
+            std::cerr << "ERROR: This should not be possible" << std::endl;
       }
+std::cout << "SWITCH OVER" << std::endl;
 }
 
    //this method is called after creation by the new processes
    //when we receive a kill command, we run off the end of this method and the process dies
    void run() {
-      listen(sockfd, 10); // set s up to be a server (listening) socket
-      std::cout << "listening!" << std::endl;
 
       int newSocket;
-      sockaddr remoteAddress;
-      socklen_t remoteAddressLength;
+      sockaddr_in remoteAddress;
+      unsigned int remoteAddressLength = sizeof(sockaddr_in);
       int count = 0 , byte_count;
-      char buffer[512];
+      char buffer[512] = {'\0'};
 
+      listen(sockfd, 10);
       while (true) {
-         newSocket = accept(sockfd, &remoteAddress, &remoteAddressLength);
+std::cout << "WAIT TO ACCEPT ON " << sockfd << std::endl;
+         newSocket = accept(sockfd, (sockaddr *)&remoteAddress, &remoteAddressLength);
+std::cout << "ACCEPTED ON " << newSocket << std::endl;
          while (recv(newSocket, buffer, sizeof(buffer), 0) != 0) {
             executeCommand(buffer, newSocket);
+            memset(buffer, '\0', 512);
+std::cout << "EXECUTE OVER, BUFFER CLEARED" << std::endl;
          }
+std::cout << "CLOSED CONNECTION: WILL WE LOOP BACK?" << std::endl;
       }
    }
 

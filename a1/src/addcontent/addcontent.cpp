@@ -49,7 +49,8 @@ int addContent(char *ip, int port, std::string content) {
    
 
    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
-       exit(-1);
+      std::cerr << "Error: no such peer" << std::endl;
+      exit(-1);
    } //TODO: don't forget to error check the connect()!
 
    //send "addcontent" message
@@ -57,7 +58,6 @@ int addContent(char *ip, int port, std::string content) {
    std::string msg = "2:" + content + "\0";
    len = msg.length();
    bytes_sent = send(sockfd, msg.c_str(), len, 0);
-
    //receive unique id back
    int byte_count;
    char uniqueId[4];
@@ -65,27 +65,22 @@ int addContent(char *ip, int port, std::string content) {
    //TODO: if byte_count != 4, heart attack
 
    close(sockfd);
-   std::cout << atoi(uniqueId) << std::endl;
    return atoi(uniqueId);
 }
 
 int main(int argc, char *argv[]) {
-   char *ip;
-   int port;
-   std::string content;
+   if (argc < 4) {
+      std::cerr << "Usage: addcontent ip port content" << std::endl;
+      exit(-1);  
+   }
 
-   switch (argc) {//parse input
-      case 4:
-         ip = argv[1];
-         port = atoi(argv[2]);
-         content = argv[3];
-         addContent(ip, port, content);
-         break;
-
-      default:
-         std::cerr << "Usage: addcontent ip port content" << std::endl;
-         exit(-1);
-
-   } //end of input switch
-
+   char *ip = argv[1];
+   int port = atoi(argv[2]);
+   std::string content = argv[3];
+   for (int i = 4; i < argc; ++i) {
+      content += " ";
+      content.append(argv[i]);
+   }
+   int uniqueId = addContent(ip, port, content);
+   std::cout << uniqueId << std::endl;
 }

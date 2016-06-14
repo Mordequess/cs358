@@ -16,6 +16,8 @@ private:
       ContentNode(std::string c, int u) {
          content = c;
          unique_id = u;
+      std::cout << "NODE MADE--" << content << "--" << unique_id << std::endl; //TODO: remove
+
       }
    };
 
@@ -26,11 +28,18 @@ public:
    ContentStructure() {
    }
 
+   ~ContentStructure() {
+      for (int i = 0; i < s.size(); ++i) {
+         delete s[i];
+      }
+   }
+
    //adds content to this structure
    void addContent(std::string c, int id) {
       ContentNode *newNode = new ContentNode(c, id);
       if (s.size() < 1) {
          s.push_back(newNode);
+      std::cout << "test1" << std::endl; //TODO: remove
          return;
       }
       for (int i = s.size()-1; i >= 0; --i) {
@@ -39,22 +48,23 @@ public:
             break;
          }
       }
+
    }
 
    //pass in unique_id of content to be removed
-   //returns true for successful removal
-   //returns false if content does not exist in this structure
-   bool removeContent(int id) {
-      if (s.size() < 1) return false;
+   //returns 0 for successful removal
+   //returns 1 if content does not exist in this structure
+   int removeContent(int id) {
+      if (s.size() < 1) return 1;
 
       int iter = 0; 
       while (s[iter]->unique_id != id) {
          iter++;
-         if (iter == s.size()) return false;
+         if (iter == s.size()) return 1;
       }
       delete s[iter];
       s.erase(s.begin() + iter);
-      return true;
+      return 0;
    }
 
    //pass in unique_id of content you are looking for

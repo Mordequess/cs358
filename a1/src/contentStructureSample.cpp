@@ -21,6 +21,6 @@ int main() {
    if (t != "") std::cout << t << std::endl;
    else std::cerr << "Error: no such content" << std::endl; //should error
 
-   if (!s.removeContent(3)) std::cerr << "Error: no such content" << std::endl; //should work silently
-   if (!s.removeContent(9)) std::cerr << "Error: no such content" << std::endl; //should error
+   if (s.removeContent(3) != 0) std::cerr << "Error: no such content" << std::endl; //should work silently
+   if (s.removeContent(9) != 0) std::cerr << "Error: no such content" << std::endl; //should error
 }
