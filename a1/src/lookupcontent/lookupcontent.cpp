@@ -41,7 +41,7 @@ std::string lookupcontent(char *ip, int port, int lookupId) {
 
 
    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
-       sdtd::cerr << "Error: no such peer" << std::endl;
+       std::cerr << "Error: no such peer" << std::endl;
        exit(-1);
    } //TODO: don't forget to error check the connect()!
 

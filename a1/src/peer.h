@@ -38,10 +38,8 @@ const char *gai_strerror(int errcode);
 
 */
 
-//99.253.145.155
-
 class Peer {
-public:
+private:
    //std::vector<Peer*> peerlist;
    ContentStructure container;
 
@@ -53,7 +51,7 @@ public:
    sockaddr_in leftPeer;
    sockaddr_in rightPeer;
 
-   Peer() {
+   void init() {
       // Initialize the network "addpeer"
       sockfd = socket(AF_INET, SOCK_STREAM, 0);
       if (sockfd < 0) {
@@ -71,21 +69,13 @@ public:
          exit(1);
       }
 
-      numPeers = numContent = 0;
+      numPeers = 1;
+      numContent = 0;
       leftPeer = rightPeer = my_server_info;
-
-      //ready
-      std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
-      //TODO: print here? return as msg?
-      run();
    }
 
-   //this method is called if this peer is not the first
-   void addPeerToNetwork(char *ip, int port) {}
-
-
    void removePeerCommand(std::string c, int senderSocket) {
-
+      //ship our content off to left
       //TODO: LET US BALANCE THE CONTENTS
 
       exit(0);
@@ -103,6 +93,15 @@ public:
       bytes_sent = send(senderSocket, msg, len*sizeof(char), 0);
    }
 
+   void removeContentCommand(int uniqueId) {
+      if (container.removeContent(uniqueId) != 0) {
+         //check if left peer was the one contacted by god, if not
+         //ask left peer if they have it via non-god message
+         //if left peer was contacted by god,
+         std::cout << "Error: no such content" << std::endl;
+      }
+   }
+
    void lookupContentCommand(int uniqueId, int senderSocket) {
       std::string content = container.lookupContent(uniqueId);
       if (content == "") {
@@ -113,13 +112,22 @@ public:
       //TODO error check?
    }
 
-   void removeContentCommand(int uniqueId, int senderSocket) {
-      if (container.removeContent(uniqueId) != 0) {
-         //check if left peer was the one contacted by god, if not
-         //ask left peer if they have it via non-god message
-         //if left peer was contacted by god,
-         std::cout << "Error: no such content" << std::endl;
-      }
+   //move
+   //changenum
+   //getnum
+
+   //this is a message from another peer saying "set me as your x"
+   //parse the void* for sockaddr_in data, save as left or right
+   //return to that peer saying what your old info was
+   void changeNeighbourCommand(int which, void *peerData, int senderSocket) {
+      //send "old info" message
+      void *msg = which ? &rightPeer : &leftPeer;
+      int bytes_sent = send(senderSocket, (char *)msg, sizeof(sockaddr_in), 0); //error check?
+      close(senderSocket);
+
+      //store their info
+      if (which == LEFT) leftPeer = * (sockaddr_in *)peerData;
+      else rightPeer = * (sockaddr_in *)peerData;
    }
 
    int executeCommand(char *message, int senderSocket) {
@@ -144,7 +152,7 @@ public:
             break;
 
          case REMOVE_CONTENT: // '3'
-            removeContentCommand(atoi(&message[2]), senderSocket);
+            removeContentCommand(atoi(&message[2]));
             break;
 
          case LOOKUP_CONTENT: // '4'
@@ -163,8 +171,9 @@ public:
             std::cout << "Retrieve number of peers, content on the network";
             break;
 
-         case CHANGE_NEIGHBOUR_NEIGHBOUR: // '8'
-            std::cout << "Change peer neighbours in the network";
+         case CHANGE_NEIGHBOUR: // '8'
+std::cout << "AAAA " << message[2] << std::endl;
+            changeNeighbourCommand(message[2]-'0', (void *)(message[3]), senderSocket);
             break;
 
          default:
@@ -191,6 +200,82 @@ public:
          }
       }
    }
+
+public:
+   Peer() {
+      init();
+      std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
+      //TODO: print here? return as msg?
+      run();
+   }
+
+   //new peers need to set up neighbours
+   Peer(char *ip, int port) {
+      init();
+std::cout << "AAAA 0" << std::endl;
+
+      //connect to right
+      int sockfd = socket(PF_INET, SOCK_STREAM, 0); //TODO: do some error checking!
+      sockaddr_in dest_addr;
+
+      dest_addr.sin_family = AF_INET;
+      dest_addr.sin_port = htons(port);
+      dest_addr.sin_addr.s_addr = inet_addr(ip);
+      memset(&(dest_addr.sin_zero), '\0', 8);  // zero the rest of the struct
+
+      if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+         std::cerr << "Error: no such peer" << std::endl;
+         exit(-1);
+      } //TODO: don't forget to error check the connect()!
+
+      rightPeer = dest_addr;
+      //send "hey mr right, lets set up neighbours" messages
+      char c[sizeof(sockaddr_in) + 4];
+      c[0] = CHANGE_NEIGHBOUR; c[1] = ':'; c[2] = LEFT + '0'; c[3] = '\0'; 
+
+      void *msg = &my_server_info;
+      strcat(c, (char *)msg);
+std::cout << "AAAA 1" << std::endl;
+std::cout << c << std::endl;
+      int bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
+std::cout << "AAAA 2" << std::endl;
+
+      //receive sockData back, this will be my left
+      int byte_count;
+      char sockData[sizeof(sockaddr_in)];
+      byte_count = recv(sockfd, sockData, sizeof(sockaddr_in), 0);
+std::cout << "AAAA 3" << std::endl;
+      leftPeer = * (sockaddr_in *)(void *)sockData[0];
+      //try to receive a 0
+std::cout << "AAAA 4" << std::endl;
+      if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
+         std::cerr << "Error: updating neighbours, received too many messages" << std::endl;
+      }
+std::cout << "AAAA 5" << std::endl;
+
+      //connect and send to left, 
+      if (connect(sockfd, (struct sockaddr *)&leftPeer, sizeof(struct sockaddr)) < 0) {
+         std::cerr << "Error: updating neighbours, could not find left" << std::endl;
+         exit(-1);
+      }
+
+       //send "hey mr left, lets set up neighbours" messages
+      c[2] = RIGHT + '0'; 
+std::cout << c << std::endl;
+      bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
+      memset(sockData, '\0', sizeof(sockData));
+      byte_count = recv(sockfd, sockData, sizeof(sockaddr_in), 0);
+      //rightPeer = * (sockaddr_in *)(void *)sockData[0];   TODO: do we want this? maybe sanity check?
+      //try to receive a 0
+      if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
+         std::cerr << "Error: updating neighbours, received too many messages" << std::endl;
+      }
+
+      std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
+      //TODO: print here? return as msg?
+      run();
+   }
+
 };
 //Peer::peerlist;
 

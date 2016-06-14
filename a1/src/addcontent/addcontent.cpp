@@ -57,8 +57,8 @@ int addContent(char *ip, int port, std::string content) {
 
    //send "addcontent" message
    int len, bytes_sent;
-   char c[2] = {ADD_CONTENT, '\0'};
-   std::string msg = std::string(c) + ":" + content + "\0";
+   char c[3] = {ADD_CONTENT, ':', '\0'};
+   std::string msg = std::string(c) + content + "\0";
    len = msg.length();
    bytes_sent = send(sockfd, msg.c_str(), len, 0);
    //receive unique id back

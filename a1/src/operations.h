@@ -11,7 +11,10 @@
 #define MOVE_CONTENT '5'
 #define CHANGE_NUMPEERS_CONTENT '6'
 #define GET_NUMPEERS_CONTENT '7'
-#define CHANGE_NEIGHBOUR_NEIGHBOUR '8'
+#define CHANGE_NEIGHBOUR '8'
+
+#define LEFT 0
+#define RIGHT 1
 
 #endif
 

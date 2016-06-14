@@ -38,19 +38,16 @@ Your peer may shutdown() the connection as soon as it sends this.
 #include "../peer.h"
 #include "addpeer.h"
 
-
-
-void connectPeer(char *ip, int port) {
-   Peer p;
-   p.addPeerToNetwork(ip, port);
-   //runPeer();
-
-}
-void firstPeer() {
-   Peer p;
+void makePeer(char *ip, int port) {
+   Peer p(ip, port);
 }
 
-void runPeer() {
+void makePeer() {
+   Peer p;
+
+}
+
+void runNewPeer(char *ip, int port) {
    pid_t pid = fork(); /* Create a child process */
 
    switch (pid) {
@@ -58,11 +55,23 @@ void runPeer() {
          std::cerr << "Error: fork() failed.\n";
          exit(1);
       case 0: /* Child process */
-         firstPeer();
+         makePeer(ip, port);
+         break;
+      default: /* Parent process */
+         //Parent should be quiet
+         return;
+   }
+}
 
-         //TODO: connect new processes if not first
-         // if --  connectPeer(a,b);
+void runFirstPeer() {
+   pid_t pid = fork(); /* Create a child process */
 
+   switch (pid) {
+      case -1: /* Error */
+         std::cerr << "Error: fork() failed.\n";
+         exit(1);
+      case 0: /* Child process */
+         makePeer();
          break;
       default: /* Parent process */
          //Parent should be quiet
@@ -72,15 +81,17 @@ void runPeer() {
 
 int main(int argc, char *argv[]) {
    switch (argc) {//parse input
+      char *ip;
+      int port;
+
       case 3:
-         //port - std::atoi(argv[2])
-         //ip
-         std::cout << argv[2] << std::endl << argv[1] << std::endl;
-         connectPeer(argv[1], std::atoi(argv[2]));
+         ip = argv[1];
+         port = atoi(argv[2]);
+         runNewPeer(ip, port);
          break;
 
       case 1:
-         runPeer();
+         runFirstPeer();
          break;
 
       default:
