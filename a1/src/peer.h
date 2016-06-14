@@ -119,15 +119,16 @@ private:
    //this is a message from another peer saying "set me as your x"
    //parse the void* for sockaddr_in data, save as left or right
    //return to that peer saying what your old info was
-   void changeNeighbourCommand(int which, void *peerData, int senderSocket) {
+   void changeNeighbourCommand(int which, char *peerData, int senderSocket) {
       //send "old info" message
       void *msg = which ? &rightPeer : &leftPeer;
+      std::cout << "changeNeighbourCommand: " << ((sockaddr_in *)(msg))->sin_addr.s_addr << "--" << htons(((sockaddr_in *)(msg))->sin_port) << std::endl;
       int bytes_sent = send(senderSocket, (char *)msg, sizeof(sockaddr_in), 0); //error check?
       close(senderSocket);
 
       //store their info
       if (which == LEFT) leftPeer = * (sockaddr_in *)peerData;
-      else rightPeer = * (sockaddr_in *)peerData;
+      else rightPeer = * (sockaddr_in *)(const void *)peerData;
    }
 
    int executeCommand(char *message, int senderSocket) {
@@ -173,11 +174,12 @@ private:
 
          case CHANGE_NEIGHBOUR: // '8'
 std::cout << "AAAA " << message[2] << std::endl;
-            changeNeighbourCommand(message[2]-'0', (void *)(message[3]), senderSocket);
+            changeNeighbourCommand(message[2]-'0', (char *)message[3], senderSocket);
             break;
 
          default:
-            std::cerr << "ERROR: This should not be possible" << std::endl;
+            std::cerr << "Message: " << message << std::endl;
+            exit(0);
       }
    }
 
@@ -236,31 +238,40 @@ std::cout << c << std::endl;
       void *msg = &my_server_info;
       strcat(c, (char *)msg);
 std::cout << "AAAA 1" << std::endl;
-std::cout << c << std::endl;    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   note the difference between here and few lines above
+std::cout << c << "     " << strlen(c) << std::endl;    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   note the difference between here and few lines above
       int bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
 std::cout << "AAAA 2" << std::endl;
+
+std::cout << "Sending to: " << dest_addr.sin_addr.s_addr << "--" << htons(dest_addr.sin_port) << std::endl;
+
 
       //receive sockData back, this will be my left
       int byte_count;
       char sockData[sizeof(sockaddr_in)];
       byte_count = recv(sockfd, sockData, sizeof(sockaddr_in), 0);
 std::cout << "AAAA 3" << std::endl;
-      leftPeer = * (sockaddr_in *)(void *)sockData[0];
+      leftPeer = * (sockaddr_in *)(void *)&sockData[0];
       //try to receive a 0
 std::cout << "AAAA 4" << std::endl;
       if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
          std::cerr << "Error: updating neighbours, received too many messages" << std::endl;
       }
-std::cout << "AAAA 5" << std::endl;
 
-      //connect and send to left, 
+      close(sockfd);
+      sockfd = socket(PF_INET, SOCK_STREAM, 0);
+
+std::cout << "AAAA 5" << std::endl;
+std::cout << "leftPeer: " << inet_ntoa(leftPeer.sin_addr) << "--" << htons(leftPeer.sin_port) << std::endl;
+std::cout << "myselfPeer: " << inet_ntoa(my_server_info.sin_addr) << "--" << htons(my_server_info.sin_port) << std::endl;
+      //connect and send to left,
+
       if (connect(sockfd, (struct sockaddr *)&leftPeer, sizeof(struct sockaddr)) < 0) {
          std::cerr << "Error: updating neighbours, could not find left" << std::endl;
          exit(-1);
       }
 
        //send "hey mr left, lets set up neighbours" messages
-      c[2] = RIGHT + '0'; 
+      c[2] = RIGHT + '0';
 std::cout << c << std::endl;
       bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
       memset(sockData, '\0', sizeof(sockData));
@@ -273,6 +284,7 @@ std::cout << c << std::endl;
 
       std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
       //TODO: print here? return as msg?
+std::cout << "I'M HERE MOTHER LICKER" << std::endl;
       run();
    }
 
