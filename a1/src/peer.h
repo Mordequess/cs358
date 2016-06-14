@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <strings.h>
 #include <arpa/inet.h>
+#include <stdlib.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -122,15 +123,20 @@ private:
    void changeNeighbourCommand(int which, char *peerData, int senderSocket) {
       //send "old info" message
       void *msg = which ? &rightPeer : &leftPeer;
-      std::cout << "changeNeighbourCommand: " << ((sockaddr_in *)(msg))->sin_addr.s_addr << "--" << htons(((sockaddr_in *)(msg))->sin_port) << std::endl;
+      std::cout << "changeNeighbourCommand: " << inet_ntoa(((sockaddr_in *)(msg))->sin_addr) << "--" << htons(((sockaddr_in *)(msg))->sin_port) << std::endl;
       int bytes_sent = send(senderSocket, (char *)msg, sizeof(sockaddr_in), 0); //error check?
       close(senderSocket);
 
       //store their info
-      if (which == LEFT) leftPeer = * (sockaddr_in *)peerData;
-      else rightPeer = * (sockaddr_in *)(const void *)peerData;
+      if (which == LEFT) {
+         // leftPeer.sin_port = ((sockaddr_in *)(peerData))->sin_port;
+         // leftPeer.sin_addr = ((sockaddr_in *)(peerData))->sin_addr;
+      }  
+      else {
+         // rightPeer.sin_port = ((sockaddr_in *)(peerData))->sin_port;
+         // rightPeer.sin_addr = ((sockaddr_in *)(peerData))->sin_addr;
+      }  
    }
-
    int executeCommand(char *message, int senderSocket) {
 
       // std::string content = message.substr(2);
@@ -196,7 +202,8 @@ std::cout << "AAAA " << message[2] << std::endl;
       listen(sockfd, 10);
       while (true) {
          newSocket = accept(sockfd, (sockaddr *)&remoteAddress, &remoteAddressLength);
-         while (recv(newSocket, buffer, sizeof(buffer), 0) != 0) {
+         if(recv(newSocket, buffer, sizeof(buffer), 0) != 0) {
+            std::cout << "Received command: " << buffer << std::endl;
             executeCommand(buffer, newSocket);
             memset(buffer, '\0', 512);
          }
@@ -230,27 +237,39 @@ std::cout << "AAAA 0" << std::endl;
          exit(-1);
       } //TODO: don't forget to error check the connect()!
 
-      rightPeer = dest_addr;
-      //send "hey mr right, lets set up neighbours" messages
-      char c[sizeof(sockaddr_in) + 4] = {CHANGE_NEIGHBOUR, ':', LEFT + '0', '\0'};
-std::cout << c << std::endl;
 
-      void *msg = &my_server_info;
-      strcat(c, (char *)msg);
+std::cout << "Contructing our message: " << std::endl;
+      
+      //send "hey mr right, lets set up neighbours" messages
+      char c[22];
+      c[0] = CHANGE_NEIGHBOUR;
+      c[1] = ':';
+      c[2] = LEFT + '0';
+      c[3] = ':';
+      snprintf(&c[4], 12, "%u", my_server_info.sin_addr.s_addr);
+      c[16] = ':';
+      snprintf(&c[17], 4, "%u", my_server_info.sin_port);
+      c[22]= '\0';
+
+std::cout << "My s_addr is: " << my_server_info.sin_addr.s_addr << std::endl;
+std::cout << "My sin_port is: " << my_server_info.sin_port << std::endl;
+std::cout << "My server info is: " << c << std::endl;
+      
 std::cout << "AAAA 1" << std::endl;
-std::cout << c << "     " << strlen(c) << std::endl;    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   note the difference between here and few lines above
       int bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
 std::cout << "AAAA 2" << std::endl;
 
-std::cout << "Sending to: " << dest_addr.sin_addr.s_addr << "--" << htons(dest_addr.sin_port) << std::endl;
+std::cout << "Sending to: " << inet_ntoa(dest_addr.sin_addr) << "--" << htons(dest_addr.sin_port) << std::endl;
 
 
       //receive sockData back, this will be my left
       int byte_count;
       char sockData[sizeof(sockaddr_in)];
-      byte_count = recv(sockfd, sockData, sizeof(sockaddr_in), 0);
+      byte_count = recv(sockfd, sockData, sizeof(sockData), 0);
 std::cout << "AAAA 3" << std::endl;
-      leftPeer = * (sockaddr_in *)(void *)&sockData[0];
+         leftPeer.sin_port = ((sockaddr_in *)(sockData))->sin_port;
+         leftPeer.sin_addr = ((sockaddr_in *)(sockData))->sin_addr;
+         memset(&(leftPeer.sin_zero), '\0', 8);  // zero the rest of the struct
       //try to receive a 0
 std::cout << "AAAA 4" << std::endl;
       if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
@@ -270,20 +289,33 @@ std::cout << "myselfPeer: " << inet_ntoa(my_server_info.sin_addr) << "--" << hto
          exit(-1);
       }
 
+
+std::cout << "AAAA 6" << std::endl;
+
        //send "hey mr left, lets set up neighbours" messages
       c[2] = RIGHT + '0';
-std::cout << c << std::endl;
+std::cout << "AAAA 7" << std::endl;
+
       bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
+
+std::cout << "AAAA 8" << std::endl;
+
       memset(sockData, '\0', sizeof(sockData));
+
       byte_count = recv(sockfd, sockData, sizeof(sockaddr_in), 0);
-      //rightPeer = * (sockaddr_in *)(void *)sockData[0];   TODO: do we want this? maybe sanity check?
+      rightPeer.sin_port = ((sockaddr_in *)(sockData))->sin_port;
+      rightPeer.sin_addr = ((sockaddr_in *)(sockData))->sin_addr;
+      memset(&(rightPeer.sin_zero), '\0', 8);  // zero the rest of the struct
       //try to receive a 0
       if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
          std::cerr << "Error: updating neighbours, received too many messages" << std::endl;
       }
 
+      std::cout << "rightPeer: " << inet_ntoa(rightPeer.sin_addr) << "--" << htons(rightPeer.sin_port) << std::endl;
+
       std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
       //TODO: print here? return as msg?
+      close(sockfd);
 std::cout << "I'M HERE MOTHER LICKER" << std::endl;
       run();
    }
