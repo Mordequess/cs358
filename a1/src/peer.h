@@ -241,7 +241,7 @@ std::cout << "AAAA 0" << std::endl;
 std::cout << "Contructing our message: " << std::endl;
 
       //send "hey mr right, lets set up neighbours" messages
-      char c[22];
+      char c[21];
       c[0] = CHANGE_NEIGHBOUR;
       c[1] = ':';
       c[2] = LEFT + '0';
@@ -249,7 +249,9 @@ std::cout << "Contructing our message: " << std::endl;
       snprintf(&c[4], 12, "%u", my_server_info.sin_addr.s_addr);
       c[14] = ':';
       snprintf(&c[15], 6, "%u", htons(my_server_info.sin_port));
-      c[22]= '\0';
+      c[20]= '\0';
+      std::cout << c[19] << std::endl;
+      std::cout << c[20] << std::endl;
 
 std::cout << "My s_addr is: " << my_server_info.sin_addr.s_addr << std::endl;
 std::cout << "My sin_port is: " << my_server_info.sin_port << std::endl;
