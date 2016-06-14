@@ -131,11 +131,11 @@ private:
       if (which == LEFT) {
          // leftPeer.sin_port = ((sockaddr_in *)(peerData))->sin_port;
          // leftPeer.sin_addr = ((sockaddr_in *)(peerData))->sin_addr;
-      }  
+      }
       else {
          // rightPeer.sin_port = ((sockaddr_in *)(peerData))->sin_port;
          // rightPeer.sin_addr = ((sockaddr_in *)(peerData))->sin_addr;
-      }  
+      }
    }
    int executeCommand(char *message, int senderSocket) {
 
@@ -239,7 +239,7 @@ std::cout << "AAAA 0" << std::endl;
 
 
 std::cout << "Contructing our message: " << std::endl;
-      
+
       //send "hey mr right, lets set up neighbours" messages
       char c[22];
       c[0] = CHANGE_NEIGHBOUR;
@@ -247,14 +247,27 @@ std::cout << "Contructing our message: " << std::endl;
       c[2] = LEFT + '0';
       c[3] = ':';
       snprintf(&c[4], 12, "%u", my_server_info.sin_addr.s_addr);
-      c[16] = ':';
-      snprintf(&c[17], 4, "%u", my_server_info.sin_port);
+      c[14] = ':';
+      snprintf(&c[15], 6, "%u", htons(my_server_info.sin_port));
       c[22]= '\0';
+std::cout << c[10] << std::endl;
+std::cout << c[11] << std::endl;
+std::cout << c[12] << std::endl;
+std::cout << c[13] << std::endl;
+std::cout << c[14] << std::endl;
+std::cout << c[15] << std::endl;
+std::cout << c[16] << std::endl;
+std::cout << c[17] << std::endl;
+std::cout << c[18] << std::endl;
+std::cout << c[19] << std::endl;
+std::cout << c[20] << std::endl;
+std::cout << c[21] << std::endl;
+std::cout << c[22] << std::endl;
 
 std::cout << "My s_addr is: " << my_server_info.sin_addr.s_addr << std::endl;
 std::cout << "My sin_port is: " << my_server_info.sin_port << std::endl;
 std::cout << "My server info is: " << c << std::endl;
-      
+
 std::cout << "AAAA 1" << std::endl;
       int bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
 std::cout << "AAAA 2" << std::endl;
