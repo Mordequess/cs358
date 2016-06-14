@@ -1,6 +1,8 @@
 CXX= g++
 CXXFLAGS = -std=c++11 -g
 
+all: addpeer removepeer addcontent removecontent lookupcontent
+
 addpeer:
 	$(CXX) src/addpeer/*  $(CXXFLAGS) -o addpeer
 
@@ -15,8 +17,6 @@ removecontent:
 
 lookupcontent:
 	$(CXX) src/lookupcontent/*  $(CXXFLAGS) -o lookupcontent
-
-all: addpeer removepeer addcontent removecontent lookupcontent
 
 clean:
 	rm -rf addpeer removepeer addcontent removecontent lookupcontent *.o

@@ -85,7 +85,7 @@ public:
 
    void addContentCommand(std::string c, int senderSocket) {
       int id = numContent++;
-      container.addContent(c, id); 
+      container.addContent(c, id);
       //TODO: tell everybody about incremented contentcount
 
       //send "unique id" message
@@ -96,7 +96,8 @@ public:
    }
 
    int executeCommand(char *message, int senderSocket) {
-      // std::string cont = message.substr(2);
+
+      // std::string content = message.substr(2);
 
       switch(message[0]) {
          case ADD_PEER: //'0'

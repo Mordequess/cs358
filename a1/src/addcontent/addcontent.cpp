@@ -24,12 +24,14 @@ Error: no such peer
 */
 
 #include "addcontent.h"
+#include "../operations.h"
+#include <stdlib.h>
 
-#include <arpa/inet.h>
 #include <netdb.h>
 
 #include <iostream>
 #include <cstdlib>
+#include <arpa/inet.h>
 #include <unistd.h>
 
 #include <string.h>
@@ -46,7 +48,7 @@ int addContent(char *ip, int port, std::string content) {
    dest_addr.sin_port = htons(port);
    dest_addr.sin_addr.s_addr = inet_addr(ip);
    memset(&(dest_addr.sin_zero), '\0', 8);  // zero the rest of the struct
-   
+
 
    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
       std::cerr << "Error: no such peer" << std::endl;
@@ -55,7 +57,7 @@ int addContent(char *ip, int port, std::string content) {
 
    //send "addcontent" message
    int len, bytes_sent;
-   std::string msg = "2:" + content + "\0";
+   std::string msg = ADD_CONTENT + ":" + content + "\0";
    len = msg.length();
    bytes_sent = send(sockfd, msg.c_str(), len, 0);
    //receive unique id back
@@ -71,7 +73,7 @@ int addContent(char *ip, int port, std::string content) {
 int main(int argc, char *argv[]) {
    if (argc < 4) {
       std::cerr << "Usage: addcontent ip port content" << std::endl;
-      exit(-1);  
+      exit(-1);
    }
 
    char *ip = argv[1];
