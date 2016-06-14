@@ -230,13 +230,13 @@ std::cout << "AAAA 0" << std::endl;
 
       rightPeer = dest_addr;
       //send "hey mr right, lets set up neighbours" messages
-      char c[sizeof(sockaddr_in) + 4];
-      c[0] = CHANGE_NEIGHBOUR; c[1] = ':'; c[2] = LEFT + '0'; c[3] = '\0'; 
+      char c[sizeof(sockaddr_in) + 4] = {CHANGE_NEIGHBOUR, ':', LEFT + '0', '\0'};
+std::cout << c << std::endl;
 
       void *msg = &my_server_info;
       strcat(c, (char *)msg);
 std::cout << "AAAA 1" << std::endl;
-std::cout << c << std::endl;
+std::cout << c << std::endl;    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<   note the difference between here and few lines above
       int bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
 std::cout << "AAAA 2" << std::endl;
 
