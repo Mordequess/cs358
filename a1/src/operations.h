@@ -24,3 +24,29 @@
 //exactly that sockaddr, if it is, go back in reverse order and say can't be found.
 
 //eg, get and change num peers and content are non-god calls
+
+
+
+
+
+//TODO:
+/*
+	add additional peers
+		requires setting up left and right peer for new peers
+		update num peers (for all peers) on add/remove peers
+		update num content (for all peers) on add/remove content
+
+
+	remove peers
+		reditribute dead peer's content
+		update neighbors
+
+	setting left/right peers and updating neighbors
+
+	load balancing
+		on remove content
+			request more items from neighbors (if necessary)
+		on adding content
+			find where it should go
+
+*/
