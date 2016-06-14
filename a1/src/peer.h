@@ -83,6 +83,14 @@ public:
    //this method is called if this peer is not the first
    void addPeerToNetwork(char *ip, int port) {}
 
+
+   void removePeerCommand(std::string c, int senderSocket) {
+
+      //TODO: LET US BALANCE THE CONTENTS
+
+      exit(0);
+   }
+
    void addContentCommand(std::string c, int senderSocket) {
       int id = numContent++;
       container.addContent(c, id);
@@ -128,7 +136,7 @@ public:
             break;
 
          case REMOVE_PEER: // '1'
-            std::cout << "Removing a peer from the network";
+            removePeerCommand(std::string(message).substr(2), senderSocket);
             break;
 
          case ADD_CONTENT: // '2'
