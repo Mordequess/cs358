@@ -95,11 +95,34 @@ public:
       bytes_sent = send(senderSocket, msg, len*sizeof(char), 0);
    }
 
+   void lookupContentCommand(int uniqueId, int senderSocket) {
+      std::string content = container.lookupContent(uniqueId);
+      if (content == "") {
+         content = "Error: no such content";
+         //TODO look at other peers
+      }
+      int bytes_sent = send(senderSocket, content.c_str(), content.size(), 0);
+      //TODO error check?
+   }
+
+   void removeContentCommand(int uniqueId, int senderSocket) {
+      if (container.removeContent(uniqueId) != 0) {
+         //check if left peer was the one contacted by god, if not
+         //ask left peer if they have it via non-god message
+         //if left peer was contacted by god,
+         std::cout << "Error: no such content" << std::endl;
+      }
+   }
+
    int executeCommand(char *message, int senderSocket) {
 
       // std::string content = message.substr(2);
 
       switch(message[0]) {
+         case ALLKEYS: // 'a'
+            std::cout << "Output all keys at node";
+            break;
+
          case ADD_PEER: //'0'
             std::cout << "Adding a peer to the network";
             break;
@@ -113,15 +136,15 @@ public:
             break;
 
          case REMOVE_CONTENT: // '3'
-            std::cout << "Removing a piece of content from the network";
+            removeContentCommand(atoi(&message[2]), senderSocket);
             break;
 
-         case MOVE_CONTENT: // '4'
+         case LOOKUP_CONTENT: // '4'
+            lookupContentCommand(atoi(&message[2]), senderSocket);
+            break;
+
+         case MOVE_CONTENT: // '5'
             std::cout << "Moving content across the network";
-            break;
-
-         case LOOKUP_CONTENT: // '5'
-            std::cout << "Look up content on the network";
             break;
 
          case CHANGE_NUMPEERS_CONTENT: // '6'
@@ -136,15 +159,10 @@ public:
             std::cout << "Change peer neighbours in the network";
             break;
 
-         case ALLKEYS: // 'a'
-            std::cout << "Output all keys at node";
-            break;
-
          default:
             std::cerr << "ERROR: This should not be possible" << std::endl;
       }
-std::cout << "SWITCH OVER" << std::endl;
-}
+   }
 
    //this method is called after creation by the new processes
    //when we receive a kill command, we run off the end of this method and the process dies
@@ -158,18 +176,13 @@ std::cout << "SWITCH OVER" << std::endl;
 
       listen(sockfd, 10);
       while (true) {
-std::cout << "WAIT TO ACCEPT ON " << sockfd << std::endl;
          newSocket = accept(sockfd, (sockaddr *)&remoteAddress, &remoteAddressLength);
-std::cout << "ACCEPTED ON " << newSocket << std::endl;
          while (recv(newSocket, buffer, sizeof(buffer), 0) != 0) {
             executeCommand(buffer, newSocket);
             memset(buffer, '\0', 512);
-std::cout << "EXECUTE OVER, BUFFER CLEARED" << std::endl;
          }
-std::cout << "CLOSED CONNECTION: WILL WE LOOP BACK?" << std::endl;
       }
    }
-
 };
 //Peer::peerlist;
 

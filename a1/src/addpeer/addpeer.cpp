@@ -48,7 +48,6 @@ void connectPeer(char *ip, int port) {
 }
 void firstPeer() {
    Peer p;
-   std::cerr << "THE PEER DIED" << std::endl;
 }
 
 void runPeer() {
@@ -56,17 +55,17 @@ void runPeer() {
 
    switch (pid) {
       case -1: /* Error */
-         std::cerr << "Uh-Oh! fork() failed.\n";
+         std::cerr << "Error: fork() failed.\n";
          exit(1);
       case 0: /* Child process */
-         firstPeer(); 
+         firstPeer();
 
          //TODO: connect new processes if not first
          // if --  connectPeer(a,b);
 
          break;
       default: /* Parent process */
-         std::cout << "Process created with pid " << pid << "\n";
+         //Parent should be quiet
          return;
    }
 }
@@ -81,9 +80,7 @@ int main(int argc, char *argv[]) {
          break;
 
       case 1:
-         std::cout << "1st peer being created" << std::endl;
          runPeer();
-         //std::cout << p.non-loopback ip address << p.port
          break;
 
       default:

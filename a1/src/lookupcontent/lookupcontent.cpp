@@ -41,12 +41,13 @@ std::string lookupcontent(char *ip, int port, int lookupId) {
 
 
    if (connect(sockfd, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+       sdtd::cerr << "Error: no such peer" << std::endl;
        exit(-1);
    } //TODO: don't forget to error check the connect()!
 
    //send "lookupcontent" message
    int len, bytes_sent;
-   char buffer[30];
+   char buffer[30] = {'\0'};
    snprintf(&buffer[0], 30, "%d", lookupId);
    std::string msg;
    msg.append(1, LOOKUP_CONTENT);
@@ -58,10 +59,9 @@ std::string lookupcontent(char *ip, int port, int lookupId) {
 
    //receive content back
    int byte_count;
-   char content[512];
+   char content[512] = {'\0'};
    byte_count = recv(sockfd, content, sizeof(content), 0);
    //TODO error check with bytecount
-
    close(sockfd);
 
    return content;
@@ -89,6 +89,3 @@ int main(int argc, char *argv[]) {
    } //end of input switch
 
 }
-
-
-

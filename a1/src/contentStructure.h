@@ -16,8 +16,6 @@ private:
       ContentNode(std::string c, int u) {
          content = c;
          unique_id = u;
-      std::cout << "NODE MADE--" << content << "--" << unique_id << std::endl; //TODO: remove
-
       }
    };
 
@@ -39,7 +37,6 @@ public:
       ContentNode *newNode = new ContentNode(c, id);
       if (s.size() < 1) {
          s.push_back(newNode);
-      std::cout << "test1" << std::endl; //TODO: remove
          return;
       }
       for (int i = s.size()-1; i >= 0; --i) {
@@ -57,7 +54,7 @@ public:
    int removeContent(int id) {
       if (s.size() < 1) return 1;
 
-      int iter = 0; 
+      int iter = 0;
       while (s[iter]->unique_id != id) {
          iter++;
          if (iter == s.size()) return 1;
@@ -71,7 +68,7 @@ public:
    //returns content string if it exists here
    //returns empty string if content does not exist in this structure
    std::string lookupContent(int id) {
-      int iter = 0; 
+      int iter = 0;
       while (s.at(iter)->unique_id != id) {
          iter++;
          if (iter == s.size()) return "";
