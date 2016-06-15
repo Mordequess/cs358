@@ -122,19 +122,27 @@ private:
    //return to that peer saying what your old info was
    void changeNeighbourCommand(int which, char *peerData, int senderSocket) {
       //send "old info" message
-      void *msg = which ? &rightPeer : &leftPeer;
-      std::cout << "changeNeighbourCommand: " << inet_ntoa(((sockaddr_in *)(msg))->sin_addr) << "--" << htons(((sockaddr_in *)(msg))->sin_port) << std::endl;
-      int bytes_sent = send(senderSocket, (char *)msg, sizeof(sockaddr_in), 0); //error check?
+      void *response = which ? &rightPeer : &leftPeer;
+
+      unsigned long addr = 0;
+      unsigned short port = 0;
+      memcpy(&addr, &peerData[0], sizeof(addr));
+      memcpy(&port, &peerData[5], sizeof(port));
+      std::cout << "The address I got in changeNeighbourCommand was: " << addr << ':' << port << std::endl;
+
+      int bytes_sent = send(senderSocket, (char *)response, sizeof(sockaddr_in), 0); //error check?
       close(senderSocket);
 
       //store their info
       if (which == LEFT) {
-         // leftPeer.sin_port = ((sockaddr_in *)(peerData))->sin_port;
-         // leftPeer.sin_addr = ((sockaddr_in *)(peerData))->sin_addr;
+         leftPeer.sin_port = port;
+         leftPeer.sin_addr.s_addr = addr;
+      std::cout << "1st's leftPeer: " << inet_ntoa(leftPeer.sin_addr) << "--" << htons(leftPeer.sin_port) << std::endl;
       }
       else {
-         // rightPeer.sin_port = ((sockaddr_in *)(peerData))->sin_port;
-         // rightPeer.sin_addr = ((sockaddr_in *)(peerData))->sin_addr;
+         rightPeer.sin_port = port;
+         rightPeer.sin_addr.s_addr = addr;
+      std::cout << "1st's rightPeer: " << inet_ntoa(rightPeer.sin_addr) << "--" << htons(rightPeer.sin_port) << std::endl;
       }
    }
    int executeCommand(char *message, int senderSocket) {
@@ -179,8 +187,8 @@ private:
             break;
 
          case CHANGE_NEIGHBOUR: // '8'
-std::cout << "AAAA " << message[2] << std::endl;
-            changeNeighbourCommand(message[2]-'0', (char *)message[3], senderSocket);
+std::cout << "side is--" << message[2] << std::endl;
+            changeNeighbourCommand(message[2]-'0', &message[4], senderSocket);
             break;
 
          default:
@@ -221,7 +229,6 @@ public:
    //new peers need to set up neighbours
    Peer(char *ip, int port) {
       init();
-std::cout << "AAAA 0" << std::endl;
 
       //connect to right
       int sockfd = socket(PF_INET, SOCK_STREAM, 0); //TODO: do some error checking!
@@ -241,27 +248,25 @@ std::cout << "AAAA 0" << std::endl;
 std::cout << "Contructing our message: " << std::endl;
 
       //send "hey mr right, lets set up neighbours" messages
-      char c[21];
+      char c[12];
       c[0] = CHANGE_NEIGHBOUR;
       c[1] = ':';
       c[2] = LEFT + '0';
       c[3] = ':';
-      snprintf(&c[4], 12, "%u", my_server_info.sin_addr.s_addr);
-      c[14] = ':';
-      snprintf(&c[15], 6, "%u", htons(my_server_info.sin_port));
-      c[20]= '\0';
-      std::cout << c[19] << std::endl;
-      std::cout << c[20] << std::endl;
+      memcpy(&c[4], &(my_server_info.sin_addr.s_addr), sizeof(my_server_info.sin_addr.s_addr));
+      c[8] = ':';
+      memcpy(&c[9], &(my_server_info.sin_port), sizeof(my_server_info.sin_port));
+      c[11] = '\0';
 
-std::cout << "My s_addr is: " << my_server_info.sin_addr.s_addr << std::endl;
+std::cout << "size s_addr  : " << sizeof(my_server_info.sin_addr.s_addr) << std::endl;
+std::cout << "size s_port  : " << sizeof(my_server_info.sin_port) << std::endl;
+std::cout << "My s_addr is  : " << my_server_info.sin_addr.s_addr << std::endl;
 std::cout << "My sin_port is: " << my_server_info.sin_port << std::endl;
-std::cout << "My server info is: " << c << std::endl;
+std::cout << "message       : " << c << std::endl;
 
-std::cout << "AAAA 1" << std::endl;
       int bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
-std::cout << "AAAA 2" << std::endl;
 
-std::cout << "Sending to: " << inet_ntoa(dest_addr.sin_addr) << "--" << htons(dest_addr.sin_port) << std::endl;
+std::cout << "Sending to: " << inet_ntoa(dest_addr.sin_addr) << ":" << htons(dest_addr.sin_port) << std::endl;
 
 
       //receive sockData back, this will be my left
