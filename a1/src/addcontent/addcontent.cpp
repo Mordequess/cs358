@@ -39,7 +39,7 @@ Error: no such peer
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-int addContent(char *ip, int port, std::string content) {
+void addContent(char *ip, int port, std::string content) {
    //connect to target
    int sockfd = socket(PF_INET, SOCK_STREAM, 0); //TODO: do some error checking!
    sockaddr_in dest_addr;
@@ -61,14 +61,7 @@ int addContent(char *ip, int port, std::string content) {
    std::string msg = std::string(c) + content + "\0";
    len = msg.length();
    bytes_sent = send(sockfd, msg.c_str(), len, 0);
-   //receive unique id back
-   int byte_count;
-   char uniqueId[4];
-   byte_count = recv(sockfd, uniqueId, sizeof(int), 0);
-   //TODO: if byte_count != 4, heart attack
-
    close(sockfd);
-   return atoi(uniqueId);
 }
 
 int main(int argc, char *argv[]) {
@@ -84,6 +77,5 @@ int main(int argc, char *argv[]) {
       content += " ";
       content.append(argv[i]);
    }
-   int uniqueId = addContent(ip, port, content);
-   std::cout << uniqueId << std::endl;
+   addContent(ip, port, content);
 }

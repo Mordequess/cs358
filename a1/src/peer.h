@@ -81,14 +81,10 @@ private:
 
    void addContentCommand(std::string c, int senderSocket) {
       int id = nextId++;
+      numContent ++;
       container.addContent(c, id);
+      std::cout << id << std::endl; 
       //TODO: tell everybody about incremented contentcount
-
-      //send "unique id" message
-      int len, bytes_sent;
-      char msg[5];
-      len = snprintf(&msg[0], 5, "%d", id);
-      bytes_sent = send(senderSocket, msg, len*sizeof(char), 0);
    }
 
    void removeContentCommand(int uniqueId) {
@@ -97,6 +93,10 @@ private:
          //ask left peer if they have it via non-god message
          //if left peer was contacted by god,
          std::cout << "Error: no such content" << std::endl;
+      }
+      else {
+         numContent--;
+         //TODO tell people about change
       }
    }
 
@@ -170,14 +170,17 @@ std::cout << "im non-god looking for " << uniqueId << std::endl;
    //return to that peer saying what your old info was
    void changeNeighbourCommand(int which, char *peerData, int senderSocket) {
       //send "old info" message
-      void *response = which ? &rightPeer : &leftPeer;
+      char response[8 + sizeof(sockaddr_in)];
+      memcpy(&response[0], which ? &rightPeer : &leftPeer, sizeof(sockaddr_in));
+      memcpy(&response[sizeof(sockaddr_in)], &nextId, sizeof(nextId));
+      memcpy(&response[sizeof(sockaddr_in) + 4], &numContent, sizeof(numContent));
 
       unsigned long addr = 0;
       unsigned short port = 0;
       memcpy(&addr, &peerData[0], sizeof(addr));
       memcpy(&port, &peerData[5], sizeof(port));
 
-      int bytes_sent = send(senderSocket, (char *)response, sizeof(sockaddr_in), 0); //error check?
+      int bytes_sent = send(senderSocket, (char *)response, sizeof(sockaddr_in) + 8, 0); //error check?
       close(senderSocket);
 
       //store their info
@@ -306,11 +309,13 @@ public:
 
       //receive sockData back, this will be my left
       int byte_count;
-      char sockData[sizeof(sockaddr_in)];
-      byte_count = recv(sockfd, sockData, sizeof(sockData), 0);
-      leftPeer.sin_port = ((sockaddr_in *)(sockData))->sin_port;
-      leftPeer.sin_addr = ((sockaddr_in *)(sockData))->sin_addr;
-      memset(&(leftPeer.sin_zero), '\0', 8);  // zero the rest of the struct
+      char sockData[sizeof(sockaddr_in) + 8];
+      byte_count = recv(sockfd, sockData, sizeof(sockData) + 8, 0);
+      memcpy(&leftPeer, &sockData[0], sizeof(sockaddr_in));
+      memcpy(&nextId, &sockData[sizeof(sockaddr_in)], sizeof(nextId));
+      memcpy(&numContent, &sockData[sizeof(sockaddr_in) + 4], sizeof(numContent));
+
+std::cout << "new peer sees --" << nextId << "--" << numContent << std::endl;
 
       //try to receive a 0
       if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
@@ -319,7 +324,6 @@ public:
 
       close(sockfd);
       sockfd = socket(PF_INET, SOCK_STREAM, 0);
-std::cout << "newguy's leftPeer: " << inet_ntoa(leftPeer.sin_addr) << "--" << htons(leftPeer.sin_port) << std::endl;
       //connect and send to left,
 
       if (connect(sockfd, (struct sockaddr *)&leftPeer, sizeof(struct sockaddr)) < 0) {
@@ -332,16 +336,14 @@ std::cout << "newguy's leftPeer: " << inet_ntoa(leftPeer.sin_addr) << "--" << ht
       bytes_sent = send(sockfd, c, sizeof(c), 0); //error check?
 
       memset(sockData, '\0', sizeof(sockData));
-      byte_count = recv(sockfd, sockData, sizeof(sockaddr_in), 0);
-      rightPeer.sin_port = ((sockaddr_in *)(sockData))->sin_port;
-      rightPeer.sin_addr = ((sockaddr_in *)(sockData))->sin_addr;
-      memset(&(rightPeer.sin_zero), '\0', 8);  // zero the rest of the struct
+      byte_count = recv(sockfd, sockData, sizeof(sockData) + 8, 0);
+      memcpy(&rightPeer, &sockData[0], sizeof(sockaddr_in));
+
       //try to receive a 0
       if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
          std::cerr << "Error: updating neighbours, received too many messages" << std::endl;
       }
 
-std::cout << "newguy's rightPeer: " << inet_ntoa(rightPeer.sin_addr) << "--" << htons(rightPeer.sin_port) << std::endl;
       std::cout << inet_ntoa(my_server_info.sin_addr) << " " << ntohs(my_server_info.sin_port) << std::endl;
       //TODO: print here? return as msg?
       close(sockfd);
