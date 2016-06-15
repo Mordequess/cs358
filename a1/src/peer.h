@@ -72,19 +72,37 @@ private:
       leftPeer = rightPeer = my_server_info;
    }
 
-   void removePeerCommand(std::string c, int senderSocket) {
+   void removePeerCommand(std::string c) {
       //ship our content off to left
       //TODO: LET US BALANCE THE CONTENTS
 
       exit(0);
    }
 
-   void addContentCommand(std::string c, int senderSocket) {
+   void addContentCommand(std::string c) {
       int id = nextId++;
-      numContent ++;
+      numContent++;
       container.addContent(c, id);
       std::cout << id << std::endl; 
-      //TODO: tell everybody about incremented contentcount
+
+      //check if only peer
+      if (my_server_info.sin_addr.s_addr == leftPeer.sin_addr.s_addr && my_server_info.sin_port == leftPeer.sin_port) {
+         return;
+      }
+      //connect to left
+      int sockfd = socket(PF_INET, SOCK_STREAM, 0);
+      if (connect(sockfd, (struct sockaddr *)&leftPeer, sizeof(struct sockaddr)) < 0) {
+         std::cerr << "Error: updating neighbour's counts" << std::endl;
+         exit(-1);
+      }
+      //build and send "update numbers" message
+      char msg [11 + sizeof(sockaddr_in)] = {CHANGE_NUMPEERS_CONTENT, ':', '\0'};
+      memcpy(&msg[2], &my_server_info, sizeof(sockaddr_in));
+      memcpy(&msg[2 + sizeof(sockaddr_in)], &nextId, sizeof(nextId));
+      memcpy(&msg[6 + sizeof(sockaddr_in)], &numContent, sizeof(numContent));
+      msg[10 + sizeof(my_server_info)] = '\0';
+      int bytes_sent = send(sockfd, msg, sizeof(msg), 0); //error check?
+      close(sockfd);
    }
 
    void removeContentCommand(int uniqueId) {
@@ -96,7 +114,26 @@ private:
       }
       else {
          numContent--;
-         //TODO tell people about change
+
+         //check if only peer
+         if (my_server_info.sin_addr.s_addr == leftPeer.sin_addr.s_addr && my_server_info.sin_port == leftPeer.sin_port) {
+            return;
+         }
+         //connect to left
+         int sockfd = socket(PF_INET, SOCK_STREAM, 0);
+         if (connect(sockfd, (struct sockaddr *)&leftPeer, sizeof(struct sockaddr)) < 0) {
+            std::cerr << "Error: updating neighbour's counts" << std::endl;
+            exit(-1);
+         }
+
+         //build and send "update numbers" message
+         char msg [11 + sizeof(sockaddr_in)] = {CHANGE_NUMPEERS_CONTENT, ':', '\0'};
+         memcpy(&msg[2], &my_server_info, sizeof(my_server_info));
+         memcpy(&msg[2 + sizeof(sockaddr_in)], &nextId, sizeof(nextId));
+         memcpy(&msg[6 + sizeof(sockaddr_in)], &numContent, sizeof(numContent));
+         msg[10 + sizeof(my_server_info)] = '\0';
+         int bytes_sent = send(sockfd, msg, sizeof(msg), 0); //error check?
+         close(sockfd);
       }
    }
 
@@ -104,7 +141,6 @@ private:
    void nongodLookupContentCommand(char *msg) {
       int uniqueId;
       memcpy(&uniqueId, &msg[3 + sizeof(my_server_info)], sizeof(int));
-std::cout << "im non-god looking for " << uniqueId << std::endl;
       std::string content = container.lookupContent(uniqueId);
       if (content != "") {
          std::cout << content << std::endl;
@@ -162,8 +198,6 @@ std::cout << "im non-god looking for " << uniqueId << std::endl;
    }
 
    //move
-   //changenum
-   //getnum
 
    //this is a message from another peer saying "set me as your x"
    //parse the void* for sockaddr_in data, save as left or right
@@ -193,13 +227,40 @@ std::cout << "im non-god looking for " << uniqueId << std::endl;
          rightPeer.sin_addr.s_addr = addr;
       }
    }
+
+   void nongodChangeNumPeersCommand(char *msg) {
+      memcpy(&nextId, &msg[2 + sizeof(sockaddr_in)], sizeof(nextId));
+      memcpy(&numContent, &msg[6 + sizeof(sockaddr_in)], sizeof(numContent));
+
+      //check if left is god-touched
+      sockaddr_in godTouched;
+      memcpy(&godTouched, &msg[2], sizeof(sockaddr_in));
+      if (godTouched.sin_addr.s_addr == leftPeer.sin_addr.s_addr && godTouched.sin_port == leftPeer.sin_port) {
+         return;
+      }
+
+      //connect to left
+      int sockfd = socket(PF_INET, SOCK_STREAM, 0);
+      if (connect(sockfd, (struct sockaddr *)&leftPeer, sizeof(struct sockaddr)) < 0) {
+         std::cerr << "Error: updating neighbours, could not find left" << std::endl;
+         exit(-1);
+      }
+
+      //build and send "nongod" lookup message
+      int bytes_sent = send(sockfd, msg, sizeof(msg), 0); //error check?
+      close(sockfd);
+   }
+
    int executeCommand(char *message, int senderSocket) {
 
       // std::string content = message.substr(2);
 
       switch(message[0]) {
          case ALLKEYS: // 'a'
-            std::cout << "Output all keys at node";
+            //std::cout << "Output all keys at node";
+            for (int i = 0; i < container.s.size(); ++i) {
+               std::cout << container.s[i]->unique_id << std::endl;
+            }
             break;
 
          case ADD_PEER: //'0'
@@ -207,11 +268,11 @@ std::cout << "im non-god looking for " << uniqueId << std::endl;
             break;
 
          case REMOVE_PEER: // '1'
-            removePeerCommand(std::string(message).substr(2), senderSocket);
+            removePeerCommand(std::string(message).substr(2));
             break;
 
          case ADD_CONTENT: // '2'
-            addContentCommand(std::string(message).substr(2), senderSocket);
+            addContentCommand(std::string(message).substr(2));
             break;
 
          case REMOVE_CONTENT: // '3'
@@ -227,18 +288,14 @@ std::cout << "im non-god looking for " << uniqueId << std::endl;
             break;
 
          case CHANGE_NUMPEERS_CONTENT: // '6'
-            std::cout << "Change number of peers, content on the network";
+            nongodChangeNumPeersCommand(message);
             break;
 
-         case GET_NUMPEERS_CONTENT: // '7'
-            std::cout << "Retrieve number of peers, content on the network";
-            break;
-
-         case CHANGE_NEIGHBOUR: // '8'
+         case CHANGE_NEIGHBOUR: // '7'
             changeNeighbourCommand(message[2]-'0', &message[4], senderSocket);
             break;
 
-         case NONGOD_LOOKUP_CONTENT: // '4'
+         case NONGOD_LOOKUP_CONTENT: // 'l'
             nongodLookupContentCommand(message);
             break;
 
@@ -315,8 +372,6 @@ public:
       memcpy(&nextId, &sockData[sizeof(sockaddr_in)], sizeof(nextId));
       memcpy(&numContent, &sockData[sizeof(sockaddr_in) + 4], sizeof(numContent));
 
-std::cout << "new peer sees --" << nextId << "--" << numContent << std::endl;
-
       //try to receive a 0
       if (recv(sockfd, sockData, sizeof(sockaddr_in), 0) != 0) {
          std::cerr << "Error: updating neighbours, received too many messages" << std::endl;
@@ -351,6 +406,5 @@ std::cout << "new peer sees --" << nextId << "--" << numContent << std::endl;
    }
 
 };
-//Peer::peerlist;
 
 #endif

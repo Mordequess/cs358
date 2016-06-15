@@ -19,9 +19,9 @@ private:
       }
    };
 
-   std::vector<ContentNode*> s;
 
 public:
+   std::vector<ContentNode*> s;
 
    ContentStructure() {
    }
