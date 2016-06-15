@@ -29,7 +29,7 @@ Come, Thou Tortoise
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-std::string lookupcontent(char *ip, int port, int lookupId) {
+void lookupcontent(char *ip, int port, int lookupId) {
    //connect to target
    int sockfd = socket(PF_INET, SOCK_STREAM, 0); //TODO: do some error checking!
    sockaddr_in dest_addr;
@@ -56,30 +56,20 @@ std::string lookupcontent(char *ip, int port, int lookupId) {
    msg.append("\0");
    len = msg.length();
    bytes_sent = send(sockfd, msg.c_str(), len, 0);
-
-   //receive content back
-   int byte_count;
-   char content[512] = {'\0'};
-   byte_count = recv(sockfd, content, sizeof(content), 0);
-   //TODO error check with bytecount
    close(sockfd);
-
-   return content;
 }
 
 int main(int argc, char *argv[]) {
    char *ip;
    int port;
    int uniqueId;
-   std::string content;
 
    switch (argc) {//parse input
       case 4:
          ip = argv[1];
          port = atoi(argv[2]);
          uniqueId = atoi(argv[3]);
-         content = lookupcontent(ip, port, uniqueId);
-         std::cout << content << std::endl;
+         lookupcontent(ip, port, uniqueId);
          break;
 
       default:

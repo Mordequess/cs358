@@ -68,6 +68,7 @@ public:
    //returns content string if it exists here
    //returns empty string if content does not exist in this structure
    std::string lookupContent(int id) {
+      if (s.size() < 1) return "";
       int iter = 0;
       while (s.at(iter)->unique_id != id) {
          iter++;

@@ -27,6 +27,7 @@ Error: no such peer
 #include <netdb.h>
 
 #include <iostream>
+#include <stdio.h>
 #include <cstdlib>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -55,7 +56,9 @@ void removePeer(char *ip, int port) {
    int len, bytes_sent;
    char c[2] = {REMOVE_PEER, '\0'};
 
-   std::string msg = std::string(c) + ":" + std::string(ip) + ":" + std::to_string(port) + "\0";
+   char p[4];
+   snprintf(&p[0], 4, "%d", port);
+   std::string msg = std::string(c) + ":" + std::string(ip) + ":" + std::string(p) + "\0";
    std::cout << "MESSAGE : " << msg << std::endl;
    len = msg.length();
    bytes_sent = send(sockfd, msg.c_str(), len, 0);

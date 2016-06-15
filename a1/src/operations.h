@@ -13,6 +13,8 @@
 #define GET_NUMPEERS_CONTENT '7'
 #define CHANGE_NEIGHBOUR '8'
 
+#define NONGOD_LOOKUP_CONTENT 'l'
+
 #define LEFT 0
 #define RIGHT 1
 
